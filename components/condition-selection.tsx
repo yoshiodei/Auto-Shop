@@ -4,7 +4,14 @@ import { useAppStore, GlobalState } from '@/store/app-store';
 export default function ConditionSelection() {
 
   const conditionFilters = useAppStore((state: GlobalState) => state.filter.condition);
-    const setConditionFilter = useAppStore((state: GlobalState) => state.setCondition);  
+  const setConditionFilter = useAppStore((state: GlobalState) => state.setCondition);  
+
+  const setIsFiltered = useAppStore((state) => state.setIsFiltered);
+
+  const handleSetConditionFilter = (condition: 'new' | 'slightly used' | 'used') => {
+      setIsFiltered(false);
+      setConditionFilter(condition);
+  };
 
   return (
     <div className="w-full max-w-md">
@@ -17,7 +24,7 @@ export default function ConditionSelection() {
               <input
                 type="checkbox"
                 checked={conditionFilters.new}
-                onChange={() => setConditionFilter('new')}
+                onChange={() => handleSetConditionFilter('new')}
                 className="w-4 h-4 rounded border-gray-300 text-[#FF6B7A] focus:ring-[#FF6B7A]"
               />
               <span className="text-sm text-gray-700">New</span>
@@ -26,7 +33,7 @@ export default function ConditionSelection() {
               <input
                 type="checkbox"
                 checked={conditionFilters['slightly used']}
-                onChange={() => setConditionFilter('slightly used')}
+                onChange={() => handleSetConditionFilter('slightly used')}
                 className="w-4 h-4 rounded border-gray-300 text-[#FF6B7A] focus:ring-[#FF6B7A]"
               />
               <span className="text-sm text-gray-700">Slightly Used</span>
@@ -35,7 +42,7 @@ export default function ConditionSelection() {
               <input
                 type="checkbox"
                 checked={conditionFilters.used}
-                onChange={() => setConditionFilter('used')}
+                onChange={() => handleSetConditionFilter('used')}
                 className="w-4 h-4 rounded border-gray-300 text-[#FF6B7A] focus:ring-[#FF6B7A]"
               />
               <span className="text-sm text-gray-700">Used</span>

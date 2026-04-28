@@ -6,6 +6,13 @@ export default function TransmissionSelection() {
   const transmissionFilters = useAppStore((state: GlobalState) => state.filter.transmission);
   const setTransmissionFilter = useAppStore((state: GlobalState) => state.setTransmission);
 
+  const setIsFiltered = useAppStore((state) => state.setIsFiltered);
+
+  const handleSetTransmissionFilter = (type: 'manual' | 'automatic') => {
+    setIsFiltered(false);
+    setTransmissionFilter(type);
+  }
+
   return (
     <div className="w-full max-w-md">
       {/* Header */}
@@ -17,7 +24,7 @@ export default function TransmissionSelection() {
               <input
                 type="checkbox"
                 checked={transmissionFilters.manual}
-                onChange={() => setTransmissionFilter('manual')}
+                onChange={() => handleSetTransmissionFilter('manual')}
                 className="w-4 h-4 rounded border-gray-300 text-[#FF6B7A] focus:ring-[#FF6B7A]"
               />
               <span className="text-sm text-gray-700">Manual</span>
@@ -26,7 +33,7 @@ export default function TransmissionSelection() {
               <input
                 type="checkbox"
                 checked={transmissionFilters.automatic}
-                onChange={() => setTransmissionFilter('automatic')}
+                onChange={() => handleSetTransmissionFilter('automatic')}
                 className="w-4 h-4 rounded border-gray-300 text-[#FF6B7A] focus:ring-[#FF6B7A]"
               />
               <span className="text-sm text-gray-700">Automatic</span>

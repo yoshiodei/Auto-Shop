@@ -20,6 +20,8 @@ export const signIn = async (credentials: SignInCredentials): Promise<void> => {
   // 2. Sign in with Firebase Auth
   const firebaseUser = await firebaseSignIn(email, password);
 
+  await useAppStore.getState().loadWishlist(firebaseUser.uid)
+
   // 3. Fetch full profile from Firestore
   const profile = await fetchFirestoreProfile(firebaseUser.uid);
 

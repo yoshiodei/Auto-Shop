@@ -9,6 +9,7 @@ import { validateSignIn } from '@/lib/validation'
 import { useAppStore } from '@/store/app-store'
 import { showToast } from '@/context/ShowToast'
 import { signIn } from '@/utils/auth/signIn/signIn'
+import { set } from 'date-fns'
 
 export default function SignInPage() {
   const router = useRouter()
@@ -35,12 +36,15 @@ export default function SignInPage() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
+    setLoading(true)
     setError(null)
     setValidationErrors({})
   
     try {
       await signIn({ email:formData?.email, password:formData?.password });
+
       showToast("Successfully signed in!", "success");
+      setLoading(false);
       router.push('/main')
     } catch (error: any) {
       // Map Firebase error codes to friendly messages
@@ -49,19 +53,23 @@ export default function SignInPage() {
         case "auth/wrong-password":
         case "auth/invalid-credential":
           setError("Incorrect email or password.");
+          setLoading(false);
           showToast("Incorrect email or password.", "error");
           break;
         case "auth/too-many-requests":
           setError("Too many attempts. Please try again later.");
+          setLoading(false);
           showToast("Too many attempts. Please try again later.", "error");
           break;
         case "auth/user-disabled":
           setError("This account has been disabled.");
+          setLoading(false);
           showToast("This account has been disabled.", "error");
           break;
         default:
-          setError(error.message);
-          showToast(error.message, "error");
+          setError("An error occurred. Please try again.");
+          setLoading(false);
+          showToast("An error occurred. Please try again.", "error");
           break;
     }
   }

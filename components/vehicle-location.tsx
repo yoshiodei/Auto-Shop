@@ -11,6 +11,13 @@ export default function VehicleLocation() {
   const town = useAppStore((state: GlobalState) => state.filter.town);
   const setLocationFilter = useAppStore((state: GlobalState) => state.setLocation);
 
+  const setIsFiltered = useAppStore((state) => state.setIsFiltered);
+
+  const handleSetLocationFilter = (region: string, town: string) => {
+    setIsFiltered(false);
+    setLocationFilter(region, town);
+  }
+
   const location: Location = {
     'Greater Accra': ['Accra','Kaneshie', 'Lapaz', 'Awoshie', 'Tema', 'Madina', 'Kasoa', 'Spintex', 'Nungua', 'Teshie', 'Ashaiman', 'Adenta', 'Amasaman'],
     'Ashanti': ['Kumasi', 'Obuasi', 'Ejisu', 'Asokwa', 'Asawase', 'Manhyia', 'Bantama', 'Suame', 'Tafo', 'Nhyiaeso'],
@@ -30,7 +37,7 @@ export default function VehicleLocation() {
           </label>
           <select
             value={region}
-            onChange={(e) => setLocationFilter(e.target.value, town)}
+            onChange={(e) => handleSetLocationFilter(e.target.value, town)}
             className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#FF6B7A]"
           >
             <option value="">All regions</option>
@@ -45,7 +52,7 @@ export default function VehicleLocation() {
           </label>
           <select
             value={town}
-            onChange={(e) => setLocationFilter(region, e.target.value)}
+            onChange={(e) => handleSetLocationFilter(region, e.target.value)}
             className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#FF6B7A]"
           >
             <option value="">All towns</option>

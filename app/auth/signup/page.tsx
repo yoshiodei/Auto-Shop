@@ -44,6 +44,7 @@ export default function SignUpPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
+    setLoading(true)
     setError(null)
 
     try{
@@ -58,11 +59,13 @@ export default function SignUpPage() {
         })
 
         showToast('Account created successfully!','success')
+        setLoading(false);
         router.push('/main')
 
     } catch (error: any) {
         console.error(error.message);
         showToast('Failed to create account. Please try again.','error')
+        setLoading(false);
     }
 
   }

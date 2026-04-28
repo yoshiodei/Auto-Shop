@@ -4,13 +4,21 @@ import { useRouter, useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { fetchVehicle } from '@/utils/fetchVehicle'
 import { Header } from '@/components/header'
-import { ArrowLeft, ChevronLeft, ChevronRight, Share2, Heart, Fuel, Cog, MessageCircle, MapPin, Eye } from 'lucide-react'
+import { ArrowLeft, ChevronLeft, ChevronRight, Share2, Heart, Fuel, Cog, MessageCircle, MapPin, Eye, Gauge, Car, Loader2, Flag, Trash2 } from 'lucide-react'
 import Image from 'next/image'
 import { VehicleData } from '@/lib/types'
 import { arrangeImageList } from '@/utils/arrangeImageList'
 import { formatPrice } from '@/utils/formatPrice'
 import LoadingScreen from '@/components/loading-screen'
 import { useAppStore } from '@/store/app-store'
+import { getSimilarVehicles } from '@/utils/getSimilarVehicles'
+import { markVehicleAsSold } from '@/utils/markVehicleAsSold'
+import { ReportVehicleModal } from '@/components/modals/report-vehicle-modal'
+import { ShareVehicleModal } from '@/components/modals/share-vehicle-modal'
+import { DeleteVehicleModal } from '@/components/modals/delete-vehicle-modal'
+import { showToast } from '@/context/ShowToast'
+import { useWishlistToggle } from '@/hooks/useWishlistToggle'
+import { useTrackView } from '@/hooks/useTrackView'
 
 export default function VehicleDetailPage() {
   const router = useRouter()
@@ -18,22 +26,61 @@ export default function VehicleDetailPage() {
   const vehicleId = params.id
 
   const [vehicle, setVehicle] = useState<VehicleData | null>(null);
+  const vehicles = useAppStore((state) => state.vehicles);
+  
+  const [similarVehicles, setSimilarVehicles] = useState<VehicleData[] | []>([]);
   const [loading, setLoading] = useState(true)
+  const [markAsSoldLoading, setMarkAsSoldLoading] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
-  const isAuthenticated =  useAppStore((state) => state.isAuthenticated);
+  const [shareOpen,  setShareOpen]  = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+  useTrackView(vehicleId);
+
+  const { handleToggle, isWishlisted } = useWishlistToggle();
+
+  const liked = isWishlisted(vehicleId);
+
+  const user =  useAppStore((state) => state.user);
   const onModalOpen = useAppStore((state) => state.setModalOpen);
+  const toggleItem = useAppStore((state) => state.toggleItem);
+
+  const handleMarkAsSold = async () => {
+    setMarkAsSoldLoading(true);
+    await markVehicleAsSold(vehicle?.id || '')
+    setMarkAsSoldLoading(false);
+  }
 
   const fetchVehicleData = async () => {
     setLoading(true)
     if(typeof vehicleId === 'string') {
       const vehicleData = await fetchVehicle(vehicleId)
+
+      if(vehicleData && vehicles){
+        const similar = getSimilarVehicles( vehicleData, vehicles )
+        setSimilarVehicles(similar);
+      } else {
+        const similar = [];
+        setSimilarVehicles(similar)
+      }
+
       await setVehicle(vehicleData)
       setLoading(false)
     }
+    setLoading(false)
   }
 
   const handleMessageClick = () => {
-    if(!isAuthenticated) {
+    if(!user) {
+      onModalOpen();
+      return;
+    }
+  }
+
+  const handleDeleteModal = () => {
+    if(!user) {
       onModalOpen();
       return;
     }
@@ -44,13 +91,43 @@ export default function VehicleDetailPage() {
   }, [vehicleId])
 
 
-  const [liked, setLiked] = useState(false)
+  // const [liked, setLiked] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  const wishlistedIds = useAppStore((state) => state.wishlistedIds)
 
   const imageList = arrangeImageList(vehicle?.imageUrls || [], vehicle?.coverImage || '')
 
+  const handleOpenModal = async (type: string) => {
+    if(!user) {
+      onModalOpen();
+      return;
+    }
+    if(type === 'share'){
+      setShareOpen(true);
+    }
+    if(type === 'report'){
+      setReportOpen(true);
+    }
+    if(type === 'like'){
+      try{
+        await toggleItem(user.uid, vehicleId);
+      } catch (error) {
+        console.error("Failed to update wishlist:", error);
+      }
+
+      if (!liked) {
+        showToast("Added to wishlist!", "success");
+      } else {
+        showToast("Removed from wishlist!", "default");
+      }
+    }
+  }
+
   if(loading){
-    <LoadingScreen />
+    return(
+      <LoadingScreen />
+    )
   }
 
   if (!vehicle && !loading) {
@@ -114,13 +191,13 @@ export default function VehicleDetailPage() {
               {/* Navigation Buttons */}
               <button
                 onClick={prevImage}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white opacity-20 hover:opacity-100 p-2 rounded-full transition-all z-10"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white opacity-50 hover:opacity-100 p-2 rounded-full transition-all z-10"
               >
                 <ChevronLeft className="w-6 h-6 text-gray-700" />
               </button>
               <button
                 onClick={nextImage}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white opacity-20 hover:bg-opacity-100 p-2 rounded-full transition-all z-10"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white opacity-50 hover:opacity-100 p-2 rounded-full transition-all z-10"
               >
                 <ChevronRight className="w-6 h-6 text-gray-700" />
               </button>
@@ -143,7 +220,7 @@ export default function VehicleDetailPage() {
             </div>
 
             {/* Thumbnail Images */}
-            <div className="flex gap-3 overflow-x-auto pb-2">
+            <div className="flex gap-3 overflow-x-auto p-1">
               {imageList.map((image, index) => (
                 <button
                   key={index}
@@ -173,7 +250,7 @@ export default function VehicleDetailPage() {
                     </div>
                     <div className="flex items-center gap-2 text-gray-600 bg-gray-50 px-3 py-1 rounded-full">
                       <Eye className="w-5 h-5 text-[#FF6B7A]" />
-                      <span className="text-sm font-semibold">{vehicle?.views?.length || 0} views</span>
+                      <span className="text-sm font-semibold">{vehicle?.viewCount ?? 0} views</span>
                     </div>
                   </div>
                 </div>
@@ -306,11 +383,25 @@ export default function VehicleDetailPage() {
                 <p className="text-gray-500 text-sm mb-2">Price</p>
                 <p className="text-4xl font-bold text-[#FF6B7A]">{"₵ " + formatPrice(Number(vehicle?.price))}</p>
 
-                {/* <div className="space-y-3">
-                  <button className="w-full bg-[#FF6B7A] hover:bg-[#FF5566] text-white py-3 rounded-lg font-semibold transition-colors">
-                    Contact Seller
-                  </button>
-                </div> */}
+                {(user?.role === 'admin' && vehicle?.status === 'sold') && (
+                  <div className="mt-4">
+                    <button 
+                      className="w-full bg-[#FF6B7A] hover:bg-[#FF5566] text-white py-2 rounded-lg font-semibold transition-colors"
+                      onClick={handleMarkAsSold}
+                    >
+                      {/* Mark as Sold */}
+                      { markAsSoldLoading ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Marking as Sold...
+                        </>
+                        ) : (
+                        'Mark as Sold'
+                        )
+                      }
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Seller Info */}
@@ -337,57 +428,118 @@ export default function VehicleDetailPage() {
                   </div>
                 </div>
               </div>
+
+              <div className="bg-white rounded-lg p-6">
+                <div className="flex gap-2">
+                  <button onClick={() => handleOpenModal('share')} className="flex flex-1 items-center justify-center gap-2 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 font-semibold text-gray-600 transition-all cursor-pointer">
+                    <Share2 className="w-5 h-5" />
+                    Share
+                  </button>
+                  <button 
+                    onClick={() => handleOpenModal('like')} className="flex flex-1 items-center justify-center gap-2 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 font-semibold text-gray-600 transition-all cursor-pointer"
+                    onMouseOver={() => setIsHovered(true)}
+                    onMouseOut={() => setIsHovered(false)}
+                  >
+                    <Heart 
+                      className="w-5 h-5" 
+                      fill={wishlistedIds.includes(vehicleId) ? "red" : "none"}
+                      color={(isHovered || wishlistedIds.includes(vehicleId)) ? "red" : "dimGray"}
+                    />
+                    Like
+                  </button>
+                  <button onClick={() => handleOpenModal('report')} className="flex flex-1 items-center justify-center gap-2 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 font-semibold text-gray-600 transition-all cursor-pointer">
+                    <Flag className="w-5 h-5" />
+                    Report
+                  </button>
+                </div>
+              </div>
+
+              {(user?.role === 'admin') && (<div className="bg-white rounded-lg p-6">
+                <div className="flex gap-2">
+                  <button onClick={() => handleDeleteModal()} className="flex flex-1 items-center justify-center gap-2 py-2 rounded-lg bg-[#FF6B7A] hover:bg-[#FF5566] font-semibold text-white transition-all cursor-pointer">
+                    <Trash2 className="w-5 h-5" />
+                    Delete
+                  </button>
+                </div>
+              </div>)}
+
             </div>
           </div>
         </div>
 
         {/* Similar Vehicles Section */}
-        <div className="bg-white border-t border-gray-200 py-12">
+        { (similarVehicles.length >= 1) && (<div className="bg-white border-t border-gray-200 py-12">
           <div className="max-w-7xl mx-auto px-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-8">Similar Vehicles</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* {SIMILAR_VEHICLES.map(car => (
+              {similarVehicles.map(vehicle => (
                 <button
-                  key={car.id}
-                  onClick={() => router.push(`/vehicle/${car.id}`)}
+                  key={vehicle.id}
+                  onClick={() => router.push(`/vehicle/${vehicle.id}`)}
                   className="bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-[#FF6B7A] hover:shadow-lg transition-all"
                 >
                   <div className="relative w-full h-40 bg-gray-200">
                     <Image
-                      src={car.image}
-                      alt={car.title}
+                      src={vehicle.coverImage}
+                      alt={vehicle.title}
                       fill
                       className="object-cover"
                     />
                   </div>
                   <div className="p-4 space-y-3">
                     <div>
-                      <p className="text-sm font-semibold text-gray-900 line-clamp-2">{car.title}</p>
+                      <p className="text-sm font-semibold text-gray-900 line-clamp-2">{vehicle.title}</p>
                     </div>
                     <div className="space-y-2 text-sm text-gray-600">
                       <div className="flex items-center gap-2">
                         <MapPin className="w-4 h-4" />
-                        {car.location}
+                        {`${vehicle.location.region}, ${vehicle.location.otherTown ? vehicle.location.otherTown :  vehicle.location.town}`}
                       </div>
                       <div className="flex items-center gap-2">
+                        <Car className="w-4 h-4" />
+                        {vehicle.condition}
+                      </div>
+                      {/* <div className="flex items-center gap-2">
                         <Gauge className="w-4 h-4" />
                         {car.mileage}
                       </div>
                       <div className="flex items-center gap-2">
                         <Fuel className="w-4 h-4" />
                         {car.fuel}
-                      </div>
+                      </div> */}
                     </div>
                     <div className="pt-2 border-t border-gray-200">
-                      <p className="text-lg font-bold text-[#FF6B7A]">{car.price}</p>
+                      <p className="text-lg font-bold text-[#FF6B7A]"><span className="font-light text-gray-500">Price: </span>{formatPrice(vehicle.price)}</p>
                     </div>
                   </div>
                 </button>
-              ))} */}
+              ))}
             </div>
           </div>
-        </div>
+        </div>)}
       </div>
+
+      <ShareVehicleModal
+        isModalOpen={shareOpen}
+        onModalClose={() => setShareOpen(false)}
+        vehicleId={vehicle?.id}
+        vehicleTitle={vehicle?.title}
+      />
+
+      <ReportVehicleModal
+        isModalOpen={reportOpen}
+        onModalClose={() => setReportOpen(false)}
+        vehicleId={vehicle?.id}
+      />
+
+      <DeleteVehicleModal 
+        isModalOpen={deleteModalOpen}
+        onModalClose={() => setDeleteModalOpen(false)}
+        vehicleId={vehicle?.id}
+        imageUrls={vehicle?.imageUrls}
+        onSuccess={() => router.push('/main')}
+      />
+
     </div>
   )
 }

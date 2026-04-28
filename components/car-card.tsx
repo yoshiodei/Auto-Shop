@@ -10,6 +10,7 @@ import { formatPrice } from '@/utils/formatPrice'
 import { arrangeImageList } from '@/utils/arrangeImageList'
 import { VehicleData } from '@/lib/types'
 import { useAppStore } from '@/store/app-store'
+import WishlistButton from './vehicle-card-like-button'
 
 export function CarCard({ vehicleData }: { vehicleData: VehicleData}) {
 
@@ -29,8 +30,6 @@ export function CarCard({ vehicleData }: { vehicleData: VehicleData}) {
   const router = useRouter();
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const isAuthenticated = useAppStore((state) => state.isAuthenticated);
-  const onModalOpen = useAppStore((state) => state.setModalOpen);
 
   const imageList = arrangedImages
 
@@ -38,13 +37,6 @@ export function CarCard({ vehicleData }: { vehicleData: VehicleData}) {
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
   const imageRef = useRef<HTMLDivElement>(null)
-
-  const handleLikeClick = () => {
-    if (!isAuthenticated) { 
-      onModalOpen(); 
-      return 
-    }
-  }
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.targetTouches[0].clientX)
@@ -116,15 +108,7 @@ export function CarCard({ vehicleData }: { vehicleData: VehicleData}) {
         </div>
 
         {/* Like Button */}
-        <button
-          onClick={handleLikeClick}
-          className="absolute z-10 top-3 right-3 bg-white bg-opacity-90 hover:bg-opacity-100 p-1 rounded transition-all"
-        >
-          <Heart
-            // className={`w-4 h-4 transition-colors ${liked ? 'fill-[#FF6B7A] text-[#FF6B7A]' : 'text-gray-400'}`}
-            className={`w-4 h-4 transition-colors  text-gray-400`}
-          />
-        </button>
+        <WishlistButton vehicleId={id} />
       </div>
 
       {/* Content */}

@@ -1,6 +1,7 @@
 'use client'
 
 import { Header } from '@/components/header'
+import { sendVehicleNotification } from '@/utils/notifications/sendNotification'
 import { validateVehicleForm } from '@/utils/postValidation'
 import { createVehicle } from '@/utils/postVehicle'
 import { set } from 'date-fns'
@@ -57,6 +58,7 @@ export default function PostVehiclePage() {
   const [images, setImages] = useState<ImageItem[]>([]);
   const [coverIndex, setCoverIndex] = useState<number | null>(null);
   const [error, setError] = useState<string>("");
+  const [category, setCategory] = useState<'car' | 'bike'>('car')
 
 const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
   const files = Array.from(e.target.files || []);
@@ -205,12 +207,8 @@ const removeImage = (index: number) => {
       otherTown: ''
     });
 
-
-
     router.push('/main');
   }
-
-  const [category, setCategory] = useState<'car' | 'bike'>('car')
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">

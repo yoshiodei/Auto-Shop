@@ -12,6 +12,7 @@ import {
   uploadBytes,
   getDownloadURL,
 } from "firebase/storage";
+import { sendVehicleNotification } from "./notifications/sendNotification";
 
 type ImageItem = {
   file: File;
@@ -90,6 +91,14 @@ export const createVehicle = async (
     // ✅ 5. Save to Firestore
     await setDoc(docRef, vehicleData);
     showToast("Vehicle posted successfully!", "success");
+
+    await sendVehicleNotification({
+      vehicleId,
+      vehicleTitle: formData.title || `${formData.brand} ${formData.model} ${formData.year}`,
+      postedBy: 'admin',
+      imageUrl: coverImage,
+    })
+
     return { success: true, vehicleId };
   } catch (error) {
     console.error("Error creating vehicle:", error);

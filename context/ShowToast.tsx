@@ -35,6 +35,6 @@ export const showToast = (message: string, type: 'success' | 'error' | 'default'
   }
    
   else{
-    toast(message, toastProperties);
+    toast.info(message, toastProperties);
   }   
 }

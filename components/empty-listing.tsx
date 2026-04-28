@@ -1,11 +1,18 @@
 import { useRouter } from 'next/navigation'
 import { RefreshCw, Plus } from "lucide-react";
+import { GlobalState, useAppStore } from '@/store/app-store';
 
 const EmptyListing = () => {
   const router = useRouter();
 
+  const resetFilter = useAppStore((state: GlobalState) => state.resetFilter)
+
   const handleReload = () => window.location.reload();
-  const handleUpload = () => router.push("/post-vehicle");
+  const handleReset = () => {
+    useAppStore.getState().resetFilter
+    useAppStore.getState().setIsFiltered(false)
+  };
+
 
   return (
     <div className="flex flex-col items-center justify-center py-6 text-center bg-gray-100 rounded-lg border-2 border-gray-300 mb-6">
@@ -41,11 +48,10 @@ const EmptyListing = () => {
         </button>
 
         <button
-          onClick={handleUpload}
-          className="flex items-center gap-2 px-4 py-2 text-sm bg-[#FF6B7A] text-White border border-[#FF6B7A] rounded-lg hover:bg-[#FF6B7A]/90 transition-colors font-bold"
+          onClick={handleReset}
+          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 border-2 border-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-bold"
         >
-          <Plus size={14} color='white' />
-          <p className='text-white'>Add a listing</p>
+          <p className='text-gray-700'>Reset Filter</p>
         </button>
       </div>
     </div>

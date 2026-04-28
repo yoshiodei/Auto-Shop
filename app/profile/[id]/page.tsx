@@ -2,25 +2,75 @@
 
 import { Header } from '@/components/header'
 import { User, Mail, Phone, MapPin, Edit2, Settings, LogOut, Star, Award, Plus, BarChart3, TrendingUp, Eye } from 'lucide-react'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import { useAppStore } from '@/store/app-store'
 import { formatMemberSince } from '@/utils/formatJoinedSince'
 import { LogoutModal } from '@/components/logout-modal'
 import { getInitials } from '@/utils/getInitials';
 import UserAvatar from '@/components/use-avatar'
+import { UserData } from '@/lib/types'
+import { fetchUser } from '@/utils/auth/fetchUser'
+import LoadingScreen from '@/components/loading-screen'
 
 export default function ProfilePage() {
   const router = useRouter()
-  const [isEditing, setIsEditing] = useState(false)
+  const params = useParams()
+  const userId = params.id
+
+  const [loading, setLoading] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
 
   const onLogoutModalClose = () => setIsLogoutModalOpen(false);
 
-  const userData =  useAppStore((state) => state.user)
+  const user =  useAppStore((state) => state.user)
 
-  console.log('User Data created:', userData?.createdAt);
+  const [userData, setUserData] = useState<UserData | null>(null)
 
+  const fetchUserData = async () => {
+    setLoading(true);
+    if(typeof userId === 'string') {
+      if(user?.uid === userId) {
+        setUserData(user);
+      } else {
+        const userData = await fetchUser(userId);
+        setUserData(userData);
+      }
+    } else {
+        setUserData(null);
+    }
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    fetchUserData();
+  }, [userData, router]);
+
+
+ if (loading) {
+    return(
+      <LoadingScreen />
+    )
+ }
+
+ if (!userData && !loading) {
+    return (
+      <div className="flex flex-col h-screen bg-gray-50">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-gray-600 text-lg">User not found</p>
+            <button
+              onClick={() => router.back()}
+              className="mt-4 text-[#FF6B7A] hover:text-[#FF5566] font-semibold"
+            >
+              Go Back
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">

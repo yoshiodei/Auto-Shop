@@ -5,7 +5,7 @@ import { Header } from '@/components/header'
 import { Sidebar } from '@/components/sidebar'
 import { CarCard } from '@/components/car-card'
 import { ArrowLeft, SlidersHorizontal, X } from 'lucide-react'
-import { useAppStore } from '@/store/app-store'
+import { GlobalState, useAppStore } from '@/store/app-store'
 import { useState, useMemo } from 'react'
 
 const ALL_VEHICLES = [
@@ -186,27 +186,28 @@ export default function SearchPage() {
   const params = useParams()
   const query = params.search || ''
   const router = useRouter()
-  const { 
-    // likedCars, 
-    // toggleLike, 
-    isFilterOpen, 
-    setIsFilterOpen } = useAppStore()
+  
+
+  const vehicleList = useAppStore((state: GlobalState) => state.vehicles)
 
     const likedCars = 0
     const toggleLike = false
 
   const filteredResults = useMemo(() => {
-    if (typeof query !== 'string') return ALL_VEHICLES
-    if (!query.trim()) return ALL_VEHICLES
+    if (typeof query !== 'string') return vehicleList
+    if (!query.trim()) return vehicleList
 
     const lowerQuery = query.toLowerCase()
-    return ALL_VEHICLES.filter(vehicle =>
+    return vehicleList.filter(vehicle =>
       vehicle.title.toLowerCase().includes(lowerQuery) ||
-      vehicle.location.toLowerCase().includes(lowerQuery) ||
-      vehicle.engine.toLowerCase().includes(lowerQuery) ||
-      vehicle.fuel?.toLowerCase().includes(lowerQuery)
+      vehicle.location.region.toLowerCase().includes(lowerQuery) ||
+      vehicle.location.town.toLowerCase().includes(lowerQuery) ||
+      vehicle.location?.otherTown?.toLowerCase().includes(lowerQuery)
     )
   }, [query])
+
+  console.log('filtered query:!', filteredResults);
+  
 
   const handleMoreDetails = (carId: number) => {
     router.push(`/vehicle/${carId}`)
@@ -256,7 +257,7 @@ export default function SearchPage() {
             {/* Filter Button for Mobile */}
             <div className="mb-6 lg:hidden">
               <button 
-                onClick={() => setIsFilterOpen(true)}
+                // onClick={() => setIsFilterOpen(true)}
                 className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 px-4 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
               >
                 <SlidersHorizontal className="w-5 h-5" />
@@ -266,26 +267,9 @@ export default function SearchPage() {
 
             {/* Results Grid */}
             {filteredResults.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredResults.map(car => (
-                //   <CarCard
-                //     key={car.id}
-                //     id={car.id}
-                //     dayOfWeek={car.dayOfWeek}
-                //     time={car.time}
-                //     title={car.title}
-                //     image={car.image}
-                //     images={car.images}
-                //     mileage={car.mileage}
-                //     location={car.location}
-                //     engine={car.engine}
-                //     transmission={car.transmission}
-                //     price={car.price}
-                //     liked={likedCars.includes(car.id)}
-                //     onLikeClick={() => handleToggleLike(car.id)}
-                //     onMoreDetails={handleMoreDetails}
-                //   />
-                  <div />
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-6">
+                {filteredResults.map(vehicleList => (
+                  <CarCard vehicleData={vehicleList} />
                 ))}
               </div>
             ) : (
@@ -300,7 +284,7 @@ export default function SearchPage() {
                     )}
                   </p>
                   <button
-                    onClick={() => {}}
+                    onClick={() => router.push('/main')}
                     className="bg-[#FF6B7A] hover:bg-[#FF5566] text-white px-6 py-3 rounded-lg font-semibold transition-colors"
                   >
                     Browse All Vehicles
@@ -313,17 +297,19 @@ export default function SearchPage() {
       </div>
 
       {/* Mobile Filter Bottom Sheet */}
-      {isFilterOpen && (
+      {
+      // isFilterOpen && (
+      false && (
         <>
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-            onClick={() => setIsFilterOpen(false)}
+            // onClick={() => setIsFilterOpen(false)}
           />
           <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl z-40 lg:hidden max-h-[80vh] overflow-y-auto shadow-2xl">
             <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between rounded-t-2xl">
               <h2 className="text-lg font-bold text-gray-900">Filters</h2>
               <button
-                onClick={() => setIsFilterOpen(false)}
+                // onClick={() => setIsFilterOpen(false)}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5 text-gray-600" />

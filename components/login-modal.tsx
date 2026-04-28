@@ -11,6 +11,11 @@ export function LoginModal() {
   const onModalClose = useAppStore((state) => state.setModalClose);
   const isModalOpen = useAppStore((state) => state.isModalOpen)
 
+  const handleClick = () => {
+    router.push('/auth/signin')
+    onModalClose();
+  }
+
   return (
     <Dialog open={isModalOpen} onOpenChange={onModalClose}>
       <DialogContent className="max-w-md bg-white border-gray-200" aria-describedby="weapon-form-description">
@@ -24,7 +29,7 @@ export function LoginModal() {
           <Button 
             type="button" 
             className="flex-1 bg-[#FF6B7A] hover:bg-[#FF5566] text-white" 
-            onClick={() => router.push('/auth/signin')}
+            onClick={handleClick}
         >
             Log In
           </Button>

@@ -5,6 +5,12 @@ export default function FuelTypeSelection() {
 
   const fuelTypeFilters = useAppStore((state: GlobalState) => state.filter.fuelType);
   const setFuelTypeFilter = useAppStore((state: GlobalState) => state.setFuelType);
+  const setIsFiltered = useAppStore((state) => state.setIsFiltered);
+
+  const handleSetFuelTypeFilter = (type: 'electric' | 'hybrid' | 'diesel' | 'petrol') => {
+    setIsFiltered(false);
+    setFuelTypeFilter(type);
+  }
 
   return (
     <div className="w-full max-w-md">
@@ -17,7 +23,7 @@ export default function FuelTypeSelection() {
               <input
                 type="checkbox"
                 checked={fuelTypeFilters.petrol}
-                onChange={() => setFuelTypeFilter('petrol')}
+                onChange={() => handleSetFuelTypeFilter('petrol')}
                 className="w-4 h-4 rounded border-gray-300 text-[#FF6B7A] focus:ring-[#FF6B7A]"
               />
               <span className="text-sm text-gray-700">Petrol</span>
@@ -26,7 +32,7 @@ export default function FuelTypeSelection() {
               <input
                 type="checkbox"
                 checked={fuelTypeFilters.diesel}
-                onChange={() => setFuelTypeFilter('diesel')}
+                onChange={() => handleSetFuelTypeFilter('diesel')}
                 className="w-4 h-4 rounded border-gray-300 text-[#FF6B7A] focus:ring-[#FF6B7A]"
               />
               <span className="text-sm text-gray-700">Diesel</span>
@@ -35,7 +41,7 @@ export default function FuelTypeSelection() {
               <input
                 type="checkbox"
                 checked={fuelTypeFilters.electric}
-                onChange={() => setFuelTypeFilter('electric')}
+                onChange={() => handleSetFuelTypeFilter('electric')}
                 className="w-4 h-4 rounded border-gray-300 text-[#FF6B7A] focus:ring-[#FF6B7A]"
               />
               <span className="text-sm text-gray-700">Electric</span>
@@ -44,7 +50,7 @@ export default function FuelTypeSelection() {
               <input
                 type="checkbox"
                 checked={fuelTypeFilters.hybrid}
-                onChange={() => setFuelTypeFilter('hybrid')}
+                onChange={() => handleSetFuelTypeFilter('hybrid')}
                 className="w-4 h-4 rounded border-gray-300 text-[#FF6B7A] focus:ring-[#FF6B7A]"
               />
               <span className="text-sm text-gray-700">Hybrid</span>

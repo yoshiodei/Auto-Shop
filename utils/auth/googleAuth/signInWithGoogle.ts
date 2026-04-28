@@ -5,6 +5,7 @@ import { buildAuthUser }                from "./buildAuthUser";
 import { generateAndStoreJWT } from "../generateJWT";
 import { useAppStore } from "@/store/app-store";
 import { serverTimestamp } from "firebase/firestore";
+import { log } from "console";
 
 export const signInWithGoogle = async (): Promise<void> => {
   // 1. Trigger Google popup and get Firebase user
@@ -13,6 +14,8 @@ export const signInWithGoogle = async (): Promise<void> => {
   // 2. Check if user already exists in Firestore
   const existingUser = await getFirestoreUser(googleUser.uid);
 
+  await useAppStore.getState().loadWishlist(existingUser?.uid)
+
   const timestamp = serverTimestamp();
 
   // 3. If not, create a new Firestore doc for them
@@ -20,8 +23,6 @@ export const signInWithGoogle = async (): Promise<void> => {
     await createGoogleUserInFirestore(googleUser, timestamp);
   }
 
-  // 4. Generate and store JWT
-  // const token = await generateAndStoreJWT(googleUser);
 
   // 5. Build AuthUser shape and save to Zustand
   const authUser = buildAuthUser(googleUser, timestamp);

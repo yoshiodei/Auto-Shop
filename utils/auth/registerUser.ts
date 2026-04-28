@@ -2,7 +2,7 @@ import { validateRegisterCredentials } from "./validation";
 import { userExists }             from "./checkUserExists";
 import { createFirebaseUser }          from "./saveUserToFirebaseAuth";
 import { saveUserToFirestore }         from "./saveUserToFirestore";
-import { generateAndStoreJWT }         from "./generateJWT";
+// import { generateAndStoreJWT }         from "./generateJWT";
 import { useAppStore }                from "@/store/app-store";
 import { showToast } from "@/context/ShowToast";
 import { serverTimestamp } from "firebase/firestore";
@@ -52,7 +52,7 @@ export const registerUser = async (credentials: RegisterCredentials): Promise<vo
   });
 
   // 5. Generate and store JWT
-  const token = await generateAndStoreJWT(firebaseUser);
+  // const token = await generateAndStoreJWT(firebaseUser);
 
   // 6. Save user to Zustand store
   useAppStore.getState().setUser({

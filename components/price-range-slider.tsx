@@ -31,6 +31,8 @@ export default function PriceRangeSlider({
   const setMaxValue = useAppStore((state: GlobalState) => state.setMaxPrice);
   const setMinValue = useAppStore((state: GlobalState) => state.setMinPrice);
 
+  const setIsFiltered = useAppStore((state) => state.setIsFiltered);
+
   // const minVal = useAppStore((state) => state.filters.minVal);
     
 
@@ -41,6 +43,7 @@ export default function PriceRangeSlider({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = Math.min(Number(e.target.value), maxValue - gap);
       // setMinVal(value);
+      setIsFiltered(false);
       setMinValue(value);
       onChange?.(value, maxValue);
     },
@@ -51,6 +54,7 @@ export default function PriceRangeSlider({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = Math.max(Number(e.target.value), minValue + gap);
       // setMaxVal(value);
+      setIsFiltered(false);
       setMaxValue(value);
 
       onChange?.(minValue, value);

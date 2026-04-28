@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Header } from '@/components/header'
 import { Sidebar } from '@/components/sidebar'
 import { CarCard } from '@/components/car-card'
-import { Search, X, SlidersHorizontal } from 'lucide-react'
+import { Search, X, SlidersHorizontal, Loader2, Loader, Heart } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { GlobalState, useAppStore } from '@/store/app-store'
 import { VehicleData } from '@/lib/types'
@@ -19,10 +19,14 @@ export default function MainPage() {
 
   const onModalOpen = useAppStore((state) => state.setModalOpen);
 
+
   const isFilterOpen = useAppStore((state) => state.isFilterOpen);
   const setIsFilterOpen = useAppStore((state) => state.setIsFilterOpen);
 
+  const [searchQuery, setSearchQuery] = useState('');
+
    const [tab, setTab] = useState<string>('all')
+   const [isMouseOver, setIsMouseOver] = useState(false);
 
   const vehicleList =  useAppStore((state: GlobalState) => state.vehicles);
   const isFiltered = useAppStore((state) => state.isFiltered);
@@ -115,14 +119,14 @@ export default function MainPage() {
                 <input
                   type="text"
                   placeholder="Search for cars, bikes, models..."
-                  // value={searchQuery}
-                  // onChange={(e) => setSearchQuery(e.target.value)}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FF6B7A]"
                 />
                 {
                 // searchQuery && (
                   <button
-                    // onClick={() => setSearchQuery('')}
+                    onClick={() => setSearchQuery('')}
                     className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
                     <X className="w-5 h-5" />
@@ -130,10 +134,11 @@ export default function MainPage() {
                 // )
                 }
               </div>
-              <button onClick={() => router.push("/search/Toyota")} className="flex bg-[#FF6B7A] hover:bg-[#FF5566] text-white px-4 py-3 rounded-lg font-semibold transition-colors items-center gap-2">
+              <button disabled={searchQuery.trim() === ''} onClick={() => router.push(`search/${searchQuery}`)} className="flex bg-[#FF6B7A] hover:bg-[#FF5566] text-white px-4 py-3 rounded-lg font-semibold transition-colors items-center gap-2">
                 <Search className="w-5 h-5" />
                 <span className="hidden lg:inline">Search</span>
               </button>
+
               <button 
                 onClick={() => setIsFilterOpen(true)}
                 className="md:hidden ml-5 bg-gray-100 hover:bg-gray-200 text-gray-900 px-4 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2"
