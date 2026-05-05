@@ -3,6 +3,10 @@ import { fetchUserWishlist } from "@/utils/wishlist/fetchUserWishlist";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { toggleWishlist } from "@/utils/wishlist/toggleWishlist";
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { db } from "@/lib/firebase";
+import { Notification } from "@/lib/types";
+
 
 export interface GlobalState {
   isFiltered: boolean
@@ -92,14 +96,19 @@ export interface GlobalState {
 
   isAuthenticated: boolean
 
-     wishlistedIds:   string[];
-    isLoading:       boolean;
-    loadWishlist:    (userId: string) => Promise<void>;
-    toggleItem:      (userId: string, vehicleId: string) => Promise<void>;
-    isWishlisted:    (vehicleId: string) => boolean;
-    clearWishlist:   () => void;
+  wishlistedIds:   string[];
+  isLoading:       boolean;
+  loadWishlist:    (userId: string) => Promise<void>;
+  toggleItem:      (userId: string, vehicleId: string) => Promise<void>;
+  isWishlisted:    (vehicleId: string) => boolean;
+  clearWishlist:   () => void;
 
-
+  notifications:  Notification[];
+  notificationUnreadCount:    number;
+  isLoadingNotification:      boolean;
+  subscribeToNotifications: (userId: string) => () => void; // returns unsubscribe fn
+  setNotifications:         (notifications: Notification[]) => void;
+  clearNotifications:       () => void;
 }
 
 export const useAppStore = create<GlobalState>()(
@@ -182,6 +191,7 @@ setIsFilterOpen: (open: boolean) => set({ isFilterOpen: open }),
 
   toggleItem: async (userId, vehicleId) => {
         const { wishlistedIds } = get();
+        
         const isCurrentlyWishlisted = wishlistedIds.includes(vehicleId);
 
         // Optimistic update — update UI instantly before Firestore responds
@@ -204,6 +214,37 @@ setIsFilterOpen: (open: boolean) => set({ isFilterOpen: open }),
 
     clearWishlist: () => set({ wishlistedIds: [] }),
 
+  notifications: [],
+  notificationUnreadCount:   0,
+  isLoadingNotification: false,
+
+  // Real-time listener — call on login, unsubscribe on logout
+  subscribeToNotifications: (userId) => {
+    const q = query(
+      collection(db, 'users', userId, 'notifications'),
+      orderBy('createdAt', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(q, (snap) => {
+      const notifications = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Notification[];
+
+      set({
+        notifications,
+        notificationUnreadCount: notifications.filter((n) => !n.isRead).length,
+        isLoadingNotification:   false,
+      });
+    });
+
+    return unsubscribe; // call this to stop listening
+  },
+
+  setNotifications:   (notifications) => set({ notifications }),
+  clearNotifications: () => set({ notifications: [], notificationUnreadCount: 0 }),
+
+
 }),
 {
   name: 'auto-world-store',
@@ -212,6 +253,7 @@ setIsFilterOpen: (open: boolean) => set({ isFilterOpen: open }),
     filter: state.filter,
     user: state.user,
     wishlistedIds: state.wishlistedIds,
+    notifications: state.notifications,
   })
 }
 ));

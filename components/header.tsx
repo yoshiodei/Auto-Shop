@@ -4,6 +4,7 @@ import { Menu, Bell, Heart, MessageCircle, User, X } from 'lucide-react'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useAppStore } from '@/store/app-store'
+import NotificationIcon from './notification-icon'
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -12,12 +13,7 @@ export function Header() {
   const onModalOpen = useAppStore((state) => state.setModalOpen);
   const setIsFilterOpen = useAppStore((state) => state.setIsFilterOpen);
 
-  // const handleButtonClick = (action: () => void) => {
-  //   if (!isAuthenticated) {
-  //     onModalOpen();
-  //     return;
-  //   }
-  // }
+  const notificationUnreadCount = useAppStore((state) => state.notificationUnreadCount )
 
   const handleOpenMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -39,19 +35,16 @@ export function Header() {
 
         {/* Desktop Icons */}
         {user && (<div className="hidden md:flex items-center gap-4 flex-shrink-0">
-          <Link href="/notifications">
-            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Notifications">
-              <Bell className="w-5 h-5 text-gray-600" />
-            </button>
-          </Link>
+          <NotificationIcon />
           <Link href="/wishlist">
             <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Wishlist">
               <Heart className="w-5 h-5 text-gray-600" />
             </button>
           </Link>
           <Link href="/chat">
-            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Messages">
+            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative" aria-label="Messages">
               <MessageCircle className="w-5 h-5 text-gray-600" />
+              <span className="absolute bg-red-500 text-white px-1 rounded-full text-xs top-0 left-0 font-bold">1</span>
             </button>
           </Link>
           <Link href={`/profile/${user?.uid}`}>

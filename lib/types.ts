@@ -44,3 +44,14 @@ export interface UserData {
     role?: string | undefined;
     provider?: string | undefined;
 }
+
+export interface Notification {
+  id:        string;
+  type:      string;
+  title:     string;
+  message:   string;
+  vehicleId: string;
+  imageUrl:  string | null;
+  isRead:    boolean;
+  createdAt: any;
+}
