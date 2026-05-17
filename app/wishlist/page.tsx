@@ -91,12 +91,15 @@ const WishlistPage = () => {
   // ── Empty wishlist ────────────────────────────────
   if (!vehicles.length) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center px-6">
+      <>
+      <Header />
+      <div className="flex flex-col items-center justify-center py-20 text-center p-6 ">
         <p className="text-gray-900 font-medium text-lg">No saved vehicles yet</p>
         <p className="text-gray-500 text-sm mt-2 max-w-xs">
           Tap the heart icon on any vehicle to save it here for later.
         </p>
       </div>
+      </>
     );
   }
 

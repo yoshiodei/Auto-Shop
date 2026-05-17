@@ -3,38 +3,38 @@ import {
   hasViewedVehicleAsAnon,
   markVehicleAsViewed,
 } from './hasViewedVehicle';
-import { incrementViewCount } from './incrementViewCount';
-import { recordViewLog }      from './recordViewLog';
+import { addViewerId, getAnonId } from './addViewerId';
+import { recordViewLog }          from './recordViewLog';
 
 type TrackViewPayload = {
   vehicleId: string;
-  userId?:   string; // undefined if anonymous
+  userId?:   string;
 };
 
 export const trackVehicleView = async ({
   vehicleId,
   userId,
 }: TrackViewPayload): Promise<void> => {
-  const isAnon = !userId;
+  const isAnon   = !userId;
+  const viewerId = isAnon ? getAnonId() : userId!;
 
-  // Check if already viewed on this device
+  // Check localStorage first to avoid unnecessary Firestore reads
   const alreadyViewed = isAnon
     ? hasViewedVehicleAsAnon(vehicleId)
     : hasViewedVehicleAsUser(userId!, vehicleId);
 
-  if (alreadyViewed) return; // already counted — do nothing
+  if (alreadyViewed) return;
 
   try {
-    // 1. Increment viewCount on the vehicle doc
-    await incrementViewCount(vehicleId);
+    // 1. Add viewerId to the viewers array on the vehicle doc
+    await addViewerId(vehicleId, viewerId);
 
     // 2. Log the view in the subcollection
-    await recordViewLog({ vehicleId, userId, isAnon });
+    await recordViewLog({ vehicleId, viewerId, isAnon });
 
-    // 3. Mark as viewed in localStorage to prevent duplicates
+    // 3. Mark in localStorage to prevent re-tracking on refresh
     markVehicleAsViewed(vehicleId, userId);
   } catch (error: any) {
-    // Don't surface view tracking errors to the user
     console.error('Failed to track view:', error.message);
   }
 };

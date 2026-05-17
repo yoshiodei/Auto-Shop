@@ -109,6 +109,13 @@ export interface GlobalState {
   subscribeToNotifications: (userId: string) => () => void; // returns unsubscribe fn
   setNotifications:         (notifications: Notification[]) => void;
   clearNotifications:       () => void;
+
+
+  roomId:         string | null
+  unreadChatCount:    number
+  setRoomId:      (roomId: string | null) => void
+  setUnreadChatCount: (count: number) => void
+  clearChat:      () => void
 }
 
 export const useAppStore = create<GlobalState>()(
@@ -244,6 +251,11 @@ setIsFilterOpen: (open: boolean) => set({ isFilterOpen: open }),
   setNotifications:   (notifications) => set({ notifications }),
   clearNotifications: () => set({ notifications: [], notificationUnreadCount: 0 }),
 
+  roomId:         null,
+  unreadChatCount:    0,
+  setRoomId:      (roomId)      => set({ roomId }),
+  setUnreadChatCount: (unreadChatCount) => set({ unreadChatCount }),
+  clearChat:      ()            => set({ roomId: null, unreadChatCount: 0 }),
 
 }),
 {
@@ -254,6 +266,8 @@ setIsFilterOpen: (open: boolean) => set({ isFilterOpen: open }),
     user: state.user,
     wishlistedIds: state.wishlistedIds,
     notifications: state.notifications,
+    unreadChatCount: state.unreadChatCount,
+    roomId: state.roomId,
   })
 }
 ));

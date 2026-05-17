@@ -55,3 +55,80 @@ export interface Notification {
   isRead:    boolean;
   createdAt: any;
 }
+
+
+export interface ChatRoom {
+  id:            string;
+  userId:        string;
+  lastMessage:   string | null;
+  lastMessageAt: any;
+  // user profile joined in
+  fullName:      string;
+  photoURL:      string | null;
+  isOnline:      boolean;
+  lastSeen:      any;
+};
+
+
+export interface SelectedUser {
+  uid:      string;
+  fullName: string;
+  photoURL: string | null;
+  isOnline: boolean;
+  lastSeen: any;
+};
+
+
+export interface Message {
+  id:        string;
+  text:      string;
+  senderId:  string;
+  isRead:    boolean;
+  createdAt: any;
+}
+
+export interface ChatRoom {
+  id:            string;
+  userId:        string;
+  fullName:      string;
+  photoURL:      string | null;
+  lastMessage:   string | null;
+  lastMessageAt: any;
+  isOnline:      boolean;
+  lastSeen:      any;
+}
+
+export interface SelectedUser {
+  uid:      string;
+  fullName: string;
+  photoURL: string | null;
+  isOnline: boolean;
+  lastSeen: any;
+}
+
+export interface Message {
+  id:        string;
+  text:      string;
+  senderId:  string;
+  isRead:    boolean;
+  createdAt: any;
+}
+
+export interface ChatRoom {
+  id:            string;
+  userId:        string;
+  fullName:      string;
+  photoURL:      string | null;
+  lastMessage:   string | null;
+  lastMessageAt: any;
+  isOnline:      boolean;
+  lastSeen:      any;
+}
+
+export interface SelectedUser {
+  uid:      string;
+  fullName: string;
+  photoURL: string | null;
+  isOnline: boolean;
+  lastSeen: any;
+}

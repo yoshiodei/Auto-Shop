@@ -77,6 +77,8 @@ export default function VehicleDetailPage() {
       onModalOpen();
       return;
     }
+
+    router.push('/chat')
   }
 
   const handleDeleteModal = () => {
@@ -250,7 +252,7 @@ export default function VehicleDetailPage() {
                     </div>
                     <div className="flex items-center gap-2 text-gray-600 bg-gray-50 px-3 py-1 rounded-full">
                       <Eye className="w-5 h-5 text-[#FF6B7A]" />
-                      <span className="text-sm font-semibold">{vehicle?.viewCount ?? 0} views</span>
+                      <span className="text-sm font-semibold">{vehicle?.views?.length ?? 0} views</span>
                     </div>
                   </div>
                 </div>

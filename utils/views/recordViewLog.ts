@@ -3,19 +3,18 @@ import { db } from '@/lib/firebase';
 
 type ViewLogPayload = {
   vehicleId: string;
-  userId?:   string;
+  viewerId:  string; // userId or anonId
   isAnon:    boolean;
 };
 
 export const recordViewLog = async ({
   vehicleId,
-  userId,
+  viewerId,
   isAnon,
 }: ViewLogPayload): Promise<void> => {
-  // Store under vehicles/{vehicleId}/views subcollection
-  await addDoc(collection(db, 'listings', vehicleId, 'views'), {
-    userId:    userId ?? null,
+  await addDoc(collection(db, 'vehicles', vehicleId, 'views'), {
+    viewerId,
     isAnon,
-    viewedAt:  serverTimestamp(),
+    viewedAt: serverTimestamp(),
   });
 };

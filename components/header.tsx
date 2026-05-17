@@ -5,6 +5,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useAppStore } from '@/store/app-store'
 import NotificationIcon from './notification-icon'
+import { ChatIcon } from './chat-icon'
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -41,13 +42,8 @@ export function Header() {
               <Heart className="w-5 h-5 text-gray-600" />
             </button>
           </Link>
-          <Link href="/chat">
-            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative" aria-label="Messages">
-              <MessageCircle className="w-5 h-5 text-gray-600" />
-              <span className="absolute bg-red-500 text-white px-1 rounded-full text-xs top-0 left-0 font-bold">1</span>
-            </button>
-          </Link>
-          <Link href={`/profile/${user?.uid}`}>
+          <ChatIcon />
+          <Link href={`/profile/${user?.role === 'admin' ? 'main-admin-id' : user?.uid}`}>
             <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Profile">
               <User className="w-5 h-5 text-gray-600" />
             </button>

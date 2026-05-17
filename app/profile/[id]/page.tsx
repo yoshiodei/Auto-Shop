@@ -32,19 +32,24 @@ export default function ProfilePage() {
     if(typeof userId === 'string') {
       if(user?.uid === userId) {
         setUserData(user);
+        setLoading(false);
+        return;
       } else {
         const userData = await fetchUser(userId);
         setUserData(userData);
+        setLoading(false);
+        return;
       }
     } else {
         setUserData(null);
+        setLoading(false);
+        return;
     }
-    setLoading(false);
   }
 
   useEffect(() => {
     fetchUserData();
-  }, [userData, router]);
+  }, [userId, router]);
 
 
  if (loading) {

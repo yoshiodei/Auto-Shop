@@ -5,6 +5,7 @@ import './globals.css'
 import LoadingScreen from '@/components/initial-loading-screen'
 import { ToastContainer } from 'react-toastify'
 import { LoginModal } from '@/components/login-modal'
+// import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -37,6 +38,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+
+  
+  // const OnlineStatusTracker = () => {
+  //   useOnlineStatus();
+  //   return null;
+  // };
+
+
   return (
     <html lang="en">
       <body className="font-sans antialiased">
