@@ -21,7 +21,7 @@ export function ShareVehicleModal({
 }: ShareVehicleModalProps) {
   const [copied, setCopied] = useState(false);
 
-  const vehicleUrl = `${window.location.origin}/vehicles/${vehicleId}`;
+  const vehicleUrl = `${window.location.origin}/vehicle/${vehicleId}`;
   const shareText  = `Check out this ${vehicleTitle} on AutoMarket: ${vehicleUrl}`;
 
   const handleCopy = async () => {
