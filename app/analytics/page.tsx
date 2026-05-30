@@ -74,7 +74,7 @@ function StatusBadge({ status }: { status: string }) {
     <span className={`px-2.5 py-1 text-xs font-medium rounded-full border ${
       map[status] ?? 'bg-gray-100 text-gray-600 border-gray-200'
     }`}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
+      {status?.charAt(0)?.toUpperCase() + status?.slice(1)}
     </span>
   )
 }
@@ -87,7 +87,7 @@ function CategoryBadge({ category }: { category: string }) {
         ? 'bg-blue-50 text-blue-700 border-blue-200'
         : 'bg-purple-50 text-purple-700 border-purple-200'
     }`}>
-      {category.charAt(0).toUpperCase() + category.slice(1)}
+      {category?.charAt(0)?.toUpperCase() + category?.slice(1)}
     </span>
   )
 }
