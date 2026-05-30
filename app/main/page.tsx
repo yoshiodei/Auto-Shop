@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Header } from '@/components/header'
 import { Sidebar } from '@/components/sidebar'
 import { CarCard } from '@/components/car-card'
@@ -11,6 +11,10 @@ import { VehicleData } from '@/lib/types'
 import { fi } from 'date-fns/locale'
 import { Empty } from '@/components/ui/empty'
 import EmptyListing from '@/components/empty-listing'
+import { getPriceRangeConfig } from '@/utils/getPriceRangeConfig'
+import { applyVehicleFilters } from '@/utils/applyVehicleFilters'
+import { set } from 'date-fns'
+import { trackSiteVisit } from '@/utils/analytics/trackSiteVisit'
 
 
 
@@ -22,15 +26,21 @@ export default function MainPage() {
 
   const isFilterOpen = useAppStore((state) => state.isFilterOpen);
   const setIsFilterOpen = useAppStore((state) => state.setIsFilterOpen);
+  const setMaxPrice = useAppStore((state) => state.setMaxPrice);
+  const setMinPrice = useAppStore((state) => state.setMinPrice);
 
   const [searchQuery, setSearchQuery] = useState('');
 
    const [tab, setTab] = useState<string>('all')
    const [isMouseOver, setIsMouseOver] = useState(false);
+   const [priceRange, setPriceRange] = useState<{min: number, max: number, step: number}>({min: 0, max: 500000, step: 1000})
 
   const vehicleList =  useAppStore((state: GlobalState) => state.vehicles);
-  const isFiltered = useAppStore((state) => state.isFiltered);
-  const filterData = useAppStore((state) => state.filter);
+  // const isFiltered = useAppStore((state) => state.isFiltered);
+  // const filterData = useAppStore((state) => state.filter);
+  // const setIsFiltered = useAppStore((state) => state.setIsFiltered);
+  const appliedFilters = useAppStore((state) => state.appliedFilter);
+  const isFilterActive = useAppStore((state) => state.isFilterActive);
 
 //   const filteredVehicles = vehicleList.filter((vehicle: GlobalState['vehicles'][0]) => {
 //     let filterMatch
@@ -39,42 +49,44 @@ export default function MainPage() {
 //     if (tab === 'cars') filterMatch = vehicle.category === 'car'
 //     if (tab === 'bikes') filterMatch = vehicle.category === 'bike'
   
-//     if (true) {
-//       filterMatch = filterMatch 
-//       (Number(vehicle.price) >= Number(filterData.minPrice) && Number(vehicle.price) <= Number(filterData.maxPrice)) ||
-//       (vehicle.location.region.toLowerCase().includes(filterData.region.toLowerCase()) || vehicle.location.town.toLowerCase().includes(filterData.town.toLowerCase())) ||
-//       (filterData.condition[vehicle.condition]) ||
-//       (filterData.fuelType[vehicle.fuelType]) ||
-//       (filterData.transmission[vehicle.transmission])
+//     if (isFiltered) {
+//       if(Number(vehicle.price) < Number(filterData.minPrice) || Number(vehicle.price) > Number(filterData.maxPrice)) return false 
+//       if(vehicle.location.region.toLowerCase().includes(filterData.region.toLowerCase()) === false && vehicle.location.town.toLowerCase().includes(filterData.town.toLowerCase()) === false) return false
+//       if(filterData.condition[vehicle.condition] === false) return false
+//       if(filterData.fuelType[vehicle.fuelType] === false) return false
+//       if(filterData.transmission[vehicle.transmission] === false) return false
 
-//       return filterMatch
 //     }
 
 //     return filterMatch
-//   }
-// );
+//  })
 
-
- const filteredVehicles = vehicleList.filter((vehicle: GlobalState['vehicles'][0]) => {
-    let filterMatch
-    
-    if (tab === 'all') filterMatch = true
-    if (tab === 'cars') filterMatch = vehicle.category === 'car'
-    if (tab === 'bikes') filterMatch = vehicle.category === 'bike'
   
-    if (isFiltered) {
-      if(Number(vehicle.price) < Number(filterData.minPrice) || Number(vehicle.price) > Number(filterData.maxPrice)) return false 
-      if(vehicle.location.region.toLowerCase().includes(filterData.region.toLowerCase()) === false && vehicle.location.town.toLowerCase().includes(filterData.town.toLowerCase()) === false) return false
-      if(filterData.condition[vehicle.condition] === false) return false
-      if(filterData.fuelType[vehicle.fuelType] === false) return false
-      if(filterData.transmission[vehicle.transmission] === false) return false
 
-    }
-      return filterMatch
- })
+  const filteredVehicles = useMemo(() =>
+    applyVehicleFilters(vehicleList, appliedFilters, tab, isFilterActive),
+    [vehicleList, appliedFilters, tab, isFilterActive]
+  )
 
+  const updatePriceRange = () => {
+    const {min, max, step} = getPriceRangeConfig(filteredVehicles);
+    console.log('the max amount is - '+max)
+    setPriceRange({min, max, step});
+    setMinPrice(0);
+    setMaxPrice(max);
+  }
 
+  useEffect(() => {
+     trackSiteVisit() 
+   }, []
+  )
+  
 
+ useEffect(() => {
+  if (vehicleList.length > 0){
+    updatePriceRange();
+  }
+ }, [tab, vehicleList.length])
 
 
   const handleMoreDetails = (carId: number) => {
@@ -93,7 +105,7 @@ export default function MainPage() {
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <Sidebar />
+        <Sidebar priceRange={priceRange} />
 
         {/* Listings */}
         <main className="flex-1 overflow-y-auto">
@@ -152,7 +164,7 @@ export default function MainPage() {
             <div className="mb-8 border-b border-gray-200">
               <div className="flex gap-8">
                 
-                {['all', 'cars', 'bikes'].map((activeTab:string) => (
+                {['all', 'car', 'bike'].map((activeTab:string) => (
                   <button
                     key={activeTab}
                     onClick={() => setTab(activeTab)}
@@ -162,7 +174,7 @@ export default function MainPage() {
                         : 'text-gray-600 hover:text-gray-900'
                     }`}
                   >
-                    {activeTab === 'all' ? 'All' : activeTab === 'cars' ? 'Cars' : 'Bikes'}
+                    {activeTab === 'all' ? 'All' : activeTab === 'car' ? 'Car' : 'Bike'}
                   </button>
                 ))}
               </div>
@@ -175,7 +187,7 @@ export default function MainPage() {
               ))}
             </div>)}
 
-            { (!filteredVehicles?.length || filteredVehicles?.length <= 0) && (<EmptyListing />)}
+            { (filteredVehicles.length === 0) && (<EmptyListing />)}
 
           </div>
         </main>
@@ -205,7 +217,7 @@ export default function MainPage() {
             </div>
             {/* Filter Content */}
             <div className="p-6 space-y-6">
-              <Sidebar isMobile={true} />
+              <Sidebar priceRange={priceRange} isMobile={true} />
             </div>
           </div>
         </>

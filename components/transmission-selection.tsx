@@ -3,13 +3,13 @@ import { useAppStore, GlobalState } from '@/store/app-store';
 
 export default function TransmissionSelection() {
 
-  const transmissionFilters = useAppStore((state: GlobalState) => state.filter.transmission);
+  const transmissionFilters = useAppStore((state: GlobalState) => state.pendingFilter.transmission);
   const setTransmissionFilter = useAppStore((state: GlobalState) => state.setTransmission);
 
-  const setIsFiltered = useAppStore((state) => state.setIsFiltered);
+  // const setIsFiltered = useAppStore((state) => state.setIsFiltered);
 
   const handleSetTransmissionFilter = (type: 'manual' | 'automatic') => {
-    setIsFiltered(false);
+    // setIsFiltered(false);
     setTransmissionFilter(type);
   }
 
@@ -26,6 +26,7 @@ export default function TransmissionSelection() {
                 checked={transmissionFilters.manual}
                 onChange={() => handleSetTransmissionFilter('manual')}
                 className="w-4 h-4 rounded border-gray-300 text-[#FF6B7A] focus:ring-[#FF6B7A]"
+                style={{ accentColor: "#e2616e" }}
               />
               <span className="text-sm text-gray-700">Manual</span>
             </label>
@@ -35,6 +36,7 @@ export default function TransmissionSelection() {
                 checked={transmissionFilters.automatic}
                 onChange={() => handleSetTransmissionFilter('automatic')}
                 className="w-4 h-4 rounded border-gray-300 text-[#FF6B7A] focus:ring-[#FF6B7A]"
+                style={{ accentColor: "#e2616e" }}
               />
               <span className="text-sm text-gray-700">Automatic</span>
             </label>

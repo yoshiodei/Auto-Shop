@@ -26,7 +26,8 @@ export function CarCard({ vehicleData }: { vehicleData: VehicleData}) {
   } = vehicleData
 
   const arrangedImages = arrangeImageList(images, coverImage);
-
+  const user = useAppStore((state) => state.user);
+  const isAdmin = user?.role === 'admin';
   const router = useRouter();
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -108,7 +109,7 @@ export function CarCard({ vehicleData }: { vehicleData: VehicleData}) {
         </div>
 
         {/* Like Button */}
-        <WishlistButton vehicleId={id} />
+        {(!isAdmin) && (<WishlistButton vehicleId={id} />)}
       </div>
 
       {/* Content */}

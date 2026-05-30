@@ -1,7 +1,7 @@
 'use client'
 
 import { Header } from '@/components/header'
-import { User, Mail, Phone, MapPin, Edit2, Settings, LogOut, Star, Award, Plus, BarChart3, TrendingUp, Eye } from 'lucide-react'
+import { Gauge, Mail, Phone, MapPin, Car, LogOut, Bike, Award, Plus, Users, TrendingUp, Eye } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useAppStore } from '@/store/app-store'
@@ -12,6 +12,8 @@ import UserAvatar from '@/components/use-avatar'
 import { UserData } from '@/lib/types'
 import { fetchUser } from '@/utils/auth/fetchUser'
 import LoadingScreen from '@/components/loading-screen'
+import { AnalyticsSummary, fetchSummary } from '@/utils/analytics/fetchAnalyticsData'
+
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -20,6 +22,8 @@ export default function ProfilePage() {
 
   const [loading, setLoading] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
+  const [summary,    setSummary]    = useState<AnalyticsSummary | null>(null)
+  const [loadingSummary, setLoadingSummary] = useState(true)
 
   const onLogoutModalClose = () => setIsLogoutModalOpen(false);
 
@@ -51,8 +55,14 @@ export default function ProfilePage() {
     fetchUserData();
   }, [userId, router]);
 
+  useEffect(() => {
+    fetchSummary()
+      .then(setSummary)
+      .finally(() => setLoadingSummary(false))
+  }, [])
 
- if (loading) {
+
+ if (loading || loadingSummary) {
     return(
       <LoadingScreen />
     )
@@ -98,7 +108,7 @@ export default function ProfilePage() {
                   
                 </div>
               </div>
-              {(userData?.role === 'admin') && (<div className="flex gap-2 mt-4">
+              {(userData?.role === 'admin') && (<div className="flex mt-4">
                 {/* <button
                   onClick={() => setIsEditing(!isEditing)}
                   className="flex items-center gap-2 bg-[#FF6B7A] hover:bg-[#FF5566] text-white px-4 py-2 rounded-lg font-semibold transition-colors"
@@ -117,25 +127,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Stats */}
-          { userData?.role === 'admin' && (
-            <div className="grid grid-cols-3 gap-4 mb-8">
-              <div className="bg-white rounded-lg p-6 text-center">
-                <p className="text-3xl font-bold text-[#FF6B7A]">{'50'}</p>
-                <p className="text-gray-600 text-sm mt-2">Active Listings</p>
-              </div>
-              <div className="bg-white rounded-lg p-6 text-center">
-              <p className="text-3xl font-bold text-[#FF6B7A]">{'50'}</p>
-              <p className="text-gray-600 text-sm mt-2">Vehicles Sold</p>
-            </div>
-            <div className="bg-white rounded-lg p-6 text-center">
-              <div className="flex items-center justify-center gap-1">
-                <p className="text-3xl font-bold text-[#FF6B7A]">43</p>
-              </div>
-              <p className="text-gray-600 text-sm mt-2">Total Users</p>
-            </div>
-          </div>)}
-
           {/* Dashboard */}
           { userData?.role === 'admin' && (
             <div className="bg-white rounded-lg p-8 mb-8">
@@ -144,30 +135,36 @@ export default function ProfilePage() {
                 <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                    <p className="text-sm text-gray-600 mb-1">Total Views</p>
-                    <p className="text-3xl font-bold text-gray-900">{51}</p>
+                    <p className="text-sm text-gray-600 mb-1">Cars Listed</p>
+                    <p className="text-3xl font-bold text-gray-900">{summary?.carsListed ?? 0}</p>
                   </div>
-                  <Eye className="w-10 h-10 text-blue-500 opacity-20" />
+                  <Car className="w-10 h-10 text-blue-500 opacity-20" />
                 </div>
               </div>
               <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Avg Response Time</p>
-                    <p className="text-3xl font-bold text-gray-900">{11}</p>
+                    <p className="text-sm text-gray-600 mb-1">Bikes Listed</p>
+                    <p className="text-3xl font-bold text-gray-900">{summary?.bikesListed ?? 0}</p>
                   </div>
-                  <TrendingUp className="w-10 h-10 text-green-500 opacity-20" />
+                  <Bike className="w-10 h-10 text-green-500 opacity-20" />
                 </div>
               </div>
               <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
-                    <p className="text-2xl font-bold text-gray-900">{50}</p>
+                    <p className="text-sm text-gray-600 mb-1">Total Users</p>
+                    <p className="text-2xl font-bold text-gray-900">{summary?.totalUsers ?? 0}</p>
                   </div>
-                  <BarChart3 className="w-10 h-10 text-purple-500 opacity-20" />
+                  <Users className="w-10 h-10 text-purple-500 opacity-20" />
                 </div>
               </div>
+            </div>
+            <div className="mt-6">
+              <button onClick={() => router.push("/analytics")} className="w-full flex items-center justify-center gap-3 p-3 bg-black rounded-lg transition-colors cursor-pointer hover:bg-gray-800 text-white">
+                <Gauge className="w-5 h-5 text-white" />
+                <span className="text-white font-medium">Dashboard Overview</span>
+              </button>
             </div>
           </div>)}
 

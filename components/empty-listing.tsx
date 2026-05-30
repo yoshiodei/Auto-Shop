@@ -10,7 +10,7 @@ const EmptyListing = () => {
   const handleReload = () => window.location.reload();
   const handleReset = () => {
     useAppStore.getState().resetFilter
-    useAppStore.getState().setIsFiltered(false)
+    useAppStore.getState().setIsFilterActive(false)
   };
 
 

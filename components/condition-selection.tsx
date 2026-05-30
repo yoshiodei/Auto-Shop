@@ -3,14 +3,20 @@ import { useAppStore, GlobalState } from '@/store/app-store';
 
 export default function ConditionSelection() {
 
-  const conditionFilters = useAppStore((state: GlobalState) => state.filter.condition);
-  const setConditionFilter = useAppStore((state: GlobalState) => state.setCondition);  
+  const conditionFilters = useAppStore((state: GlobalState) => state.pendingFilter.condition);
+  const pendingFilter = useAppStore((state: GlobalState) => state.pendingFilter);
+  const setConditionFilter = useAppStore((state: GlobalState) => state.setPendingFilter);  
 
-  const setIsFiltered = useAppStore((state) => state.setIsFiltered);
+  // const setIsFiltered = useAppStore((state) => state.setIsFiltered);
 
   const handleSetConditionFilter = (condition: 'new' | 'slightly used' | 'used') => {
-      setIsFiltered(false);
-      setConditionFilter(condition);
+      // setIsFiltered(false);
+      if(conditionFilters[condition]){
+        setConditionFilter({ ...pendingFilter, condition: { ...conditionFilters, [condition]: false } });
+      }
+      else{
+        setConditionFilter({ ...pendingFilter, condition: { ...conditionFilters, [condition]: true } });
+      }
   };
 
   return (
@@ -26,6 +32,7 @@ export default function ConditionSelection() {
                 checked={conditionFilters.new}
                 onChange={() => handleSetConditionFilter('new')}
                 className="w-4 h-4 rounded border-gray-300 text-[#FF6B7A] focus:ring-[#FF6B7A]"
+                style={{ accentColor: "#e2616e" }}
               />
               <span className="text-sm text-gray-700">New</span>
             </label>
@@ -35,6 +42,7 @@ export default function ConditionSelection() {
                 checked={conditionFilters['slightly used']}
                 onChange={() => handleSetConditionFilter('slightly used')}
                 className="w-4 h-4 rounded border-gray-300 text-[#FF6B7A] focus:ring-[#FF6B7A]"
+                style={{ accentColor: "#e2616e" }}
               />
               <span className="text-sm text-gray-700">Slightly Used</span>
             </label>
@@ -44,6 +52,7 @@ export default function ConditionSelection() {
                 checked={conditionFilters.used}
                 onChange={() => handleSetConditionFilter('used')}
                 className="w-4 h-4 rounded border-gray-300 text-[#FF6B7A] focus:ring-[#FF6B7A]"
+                style={{ accentColor: "#e2616e" }}
               />
               <span className="text-sm text-gray-700">Used</span>
             </label>

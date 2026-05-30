@@ -5,17 +5,10 @@ import { persist } from "zustand/middleware";
 import { toggleWishlist } from "@/utils/wishlist/toggleWishlist";
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from "@/lib/firebase";
-import { Notification } from "@/lib/types";
+import { Notification, VehicleData } from "@/lib/types";
 
-
-export interface GlobalState {
-  isFiltered: boolean
-  setIsFiltered: (filtered: boolean) => void
-
-  isFilterOpen: boolean
-  setIsFilterOpen: (open: boolean) => void
-
-  filter: {
+interface FilterState {
+    category: string;
     minPrice: number;
     maxPrice: number;
     region: string;  
@@ -23,7 +16,20 @@ export interface GlobalState {
     condition: {new: boolean; 'slightly used': boolean; used: boolean};
     transmission: { manual: boolean; automatic: boolean };
     fuelType: { petrol: boolean; diesel: boolean; electric: boolean; hybrid: boolean };
-  },
+  }
+
+export interface GlobalState {
+  isFilterOpen: boolean
+  setIsFilterOpen: (open: boolean) => void
+
+  isFilterActive: boolean
+
+  pendingFilter: FilterState,
+  appliedFilter: FilterState,
+
+  setPendingFilter:  (filters: Partial<FilterState>) => void
+  applyFilter:      () => void
+  resetFilter:      (maxPrice:number) => void
 
   setMinPrice: (price: number) => void;
   setMaxPrice: (price: number) => void;
@@ -33,46 +39,13 @@ export interface GlobalState {
   setTransmission: (transmission: 'manual' | 'automatic') => void;
   setFuelType: (fuelType: 'petrol' | 'diesel' | 'electric' | 'hybrid') => void;
 
-  resetFilter: () => void;
-
-  vehicles: {
-    id: string
-    title: string
-    year?: string
-    brand?: string
-    model?: string
-    condition: 'new' | 'slightly used' | 'used'
-    mileage: string
-    price: string
-    fuelType: 'petrol' | 'diesel' | 'electric' | 'hybrid'
-    transmission: 'manual' | 'automatic'
-    engine: string
-    location: {
-      region: string
-      town: string
-      otherTown?: string
-    }
-    description: string
-    gearCount: string
-    VIN: string
-    colour: string
-    frameMaterial: string
-    brakeType: string
-    bikeType: string
-    bodyType: string
-    features: []
-    status?: 'available' | 'sold'
-    images: string[]
-    imagesUrls: string[]
-    coverImage: string
-    createdAt: any
-    category: 'bike' | 'car'
-    views?: string[]
-    viewCount?: number
-  }[]
-
-  setListings: (listings: GlobalState['vehicles']) => void;
-
+  vehicles: VehicleData[];
+  
+  // setListings: (listings: GlobalState['vehicles']) => void;
+  setListings: (listings: VehicleData[]) => void;
+  removeListing: (id: string) => void;
+  addListing: (vehicle: VehicleData) => void;
+  updateListing: (id: string, updatedData: Partial<VehicleData>) => void;
 
   isModalOpen: boolean
   
@@ -118,60 +91,86 @@ export interface GlobalState {
   clearChat:      () => void
 }
 
+const defaultFilter = {
+    category: '',
+    minPrice: 0,
+    maxPrice: 50000,
+    region: '',
+    town: '',
+    condition: {new: false, 'slightly used': false, used: false},
+    transmission: { manual: false, automatic: false },
+    fuelType: { petrol: false, diesel: false, electric: false, hybrid: false },
+}
+
 export const useAppStore = create<GlobalState>()(
   persist(
   (set, get) => ({
 
-  isFiltered: false,
-  setIsFiltered: (filtered: boolean) => set({ isFiltered: filtered }),
+  isFilterActive: false,
 
-  filter: {
-    minPrice: 0,
-    maxPrice: 500000,
-    region: '',
-    town: '',
-    condition: {new: false, 'slightly used': false, used: false},
-    transmission: { manual: false, automatic: false },
-    fuelType: { petrol: false, diesel: false, electric: false, hybrid: false },
+  // filter: {
+  //   minPrice: 0,
+  //   maxPrice: 500000,
+  //   region: '',
+  //   town: '',
+  //   condition: {new: false, 'slightly used': false, used: false},
+  //   transmission: { manual: false, automatic: false },
+  //   fuelType: { petrol: false, diesel: false, electric: false, hybrid: false },
+  // },
+
+  pendingFilter: defaultFilter,
+  appliedFilter: defaultFilter,
+
+  setPendingFilter: (filters) => {
+    set({
+      pendingFilter: { ...get().pendingFilter, ...filters }
+    })
   },
 
-  setMinPrice: (price: number) => set({ filter: { ...get().filter, minPrice: price } }),
-  setMaxPrice: (price: number) => set({ filter: { ...get().filter, maxPrice: price } }),
-  setLocation: (region: string, town: string) => set({ filter: { ...get().filter, region, town } }),
+  applyFilter: () =>{
+    set({
+      appliedFilter: { ...get().pendingFilter },
+      isFilterActive: true,
+    })
+  },
+
+  resetFilter: (maxPrice: number) => {
+    set({
+      pendingFilter: { ...defaultFilter, maxPrice },
+      appliedFilter: { ...defaultFilter, maxPrice },
+      isFilterActive: false,
+  })},
+
+  setMinPrice: (price: number) => set({ pendingFilter: { ...get().pendingFilter, minPrice: price } }),
+  setMaxPrice: (price: number) => set({ pendingFilter: { ...get().pendingFilter, maxPrice: price } }),
+  setLocation: (region: string, town: string) => set({ pendingFilter: { ...get().pendingFilter, region, town } }),
 
   setCondition: (condition: 'new' | 'slightly used' | 'used') => {
-    const current = get().filter.condition[condition];
-    set({ filter: { ...get().filter, condition: { ...get().filter.condition, [condition]: !current } } });
+    const current = get().pendingFilter.condition[condition];
+    set({ pendingFilter: { ...get().pendingFilter, condition: { ...get().pendingFilter.condition, [condition]: !current } } });
   },
 
   setTransmission: (transmission: 'manual' | 'automatic') => {
-    const current = get().filter.transmission[transmission];
-    set({ filter: { ...get().filter, transmission: { ...get().filter.transmission, [transmission]: !current } } });
+    const current = get().pendingFilter.transmission[transmission];
+    set({ pendingFilter: { ...get().pendingFilter, transmission: { ...get().pendingFilter.transmission, [transmission]: !current } } });
   },
 
   setFuelType: (fuelType: 'petrol' | 'diesel' | 'electric' | 'hybrid') => {
-    const current = get().filter.fuelType[fuelType];
-    set({ filter: { ...get().filter, fuelType: { ...get().filter.fuelType, [fuelType]: !current } } });
+    const current = get().pendingFilter.fuelType[fuelType];
+    set({ pendingFilter: { ...get().pendingFilter, fuelType: { ...get().pendingFilter.fuelType, [fuelType]: !current } } });
   },
-
-  resetFilter: () => set({ filter: {
-    minPrice: 0,
-    maxPrice: 500000,
-    region: '',
-    town: '',
-    condition: {new: false, 'slightly used': false, used: false},
-    transmission: { manual: false, automatic: false },
-    fuelType: { petrol: false, diesel: false, electric: false, hybrid: false },
-  }}
-),
 
 isFilterOpen: false,
 
 setIsFilterOpen: (open: boolean) => set({ isFilterOpen: open }),
 
-  vehicles:[],
+vehicles:[],
 
-  setListings: (listings: GlobalState['vehicles']) => set({ vehicles: listings }),
+// setListings: (listings: GlobalState['vehicles']) => set({ vehicles: listings }),
+setListings: (listings) => set({ vehicles: listings }),
+removeListing: (id: string) => set({ vehicles: get().vehicles.filter(v => v.id !== id) }),
+updateListing: (id: string, updatedData: Partial<VehicleData>) => set({ vehicles: get().vehicles.map(v => v.id === id ? { ...v, ...updatedData } : v) }),
+addListing: (vehicle) => set({ vehicles: [vehicle, ...get().vehicles] }),
 
   isModalOpen: false,
 
@@ -262,7 +261,7 @@ setIsFilterOpen: (open: boolean) => set({ isFilterOpen: open }),
   name: 'auto-world-store',
 
   partialize: (state) => ({
-    filter: state.filter,
+    // filter: state.filter,
     user: state.user,
     wishlistedIds: state.wishlistedIds,
     notifications: state.notifications,

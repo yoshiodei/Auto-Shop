@@ -6,7 +6,7 @@ export interface VehicleData {
     model?: string
     condition: 'new' | 'slightly used' | 'used'
     mileage: string
-    price: string
+    price: string | number
     fuelType: 'petrol' | 'diesel' | 'electric' | 'hybrid'
     transmission: 'manual' | 'automatic'
     engine: string
@@ -23,12 +23,12 @@ export interface VehicleData {
     brakeType: string
     bikeType: string
     bodyType: string
-    features: []
+    features: string[]
     category?: 'car' | 'bike'
     status?: 'available' | 'sold'
-    images: string[]
-    imageUrls: string[]
-    coverImage: string
+    images?: string[]
+    imageUrls?: string[]
+    coverImage?: string
     createdAt: any
     views?: string[]
     viewCount?: number
@@ -131,4 +131,12 @@ export interface SelectedUser {
   photoURL: string | null;
   isOnline: boolean;
   lastSeen: any;
+}
+
+export interface ViewData {
+  id?: string | null
+  isAnon: boolean;
+  userId: string | null;
+  viewedAt: any;
+
 }

@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Header } from '@/components/header'
 import { Sidebar } from '@/components/sidebar'
@@ -7,6 +8,7 @@ import { CarCard } from '@/components/car-card'
 import { ArrowLeft, SlidersHorizontal, X } from 'lucide-react'
 import { GlobalState, useAppStore } from '@/store/app-store'
 import { useState, useMemo } from 'react'
+import { getPriceRangeConfig } from '@/utils/getPriceRangeConfig'
 
 const ALL_VEHICLES = [
   {
@@ -189,9 +191,13 @@ export default function SearchPage() {
   
 
   const vehicleList = useAppStore((state: GlobalState) => state.vehicles)
+  const [priceRange, setPriceRange] = useState<{min: number, max: number, step: number}>({min: 0, max: 500000, step: 1000})
+  const setMaxPrice = useAppStore((state) => state.setMaxPrice)
+  const setMinPrice = useAppStore((state) => state.setMinPrice)
 
-    const likedCars = 0
-    const toggleLike = false
+
+  const likedCars = 0
+  const toggleLike = false
 
   const filteredResults = useMemo(() => {
     if (typeof query !== 'string') return vehicleList
@@ -217,6 +223,18 @@ export default function SearchPage() {
     // toggleLike(carId)
   }
 
+  const updatePriceRange = () => {
+      const {min, max, step} = getPriceRangeConfig(filteredResults);
+      setPriceRange({min, max, step});
+      setMinPrice(0);
+      setMaxPrice(max);
+    }
+  
+  
+   useEffect(() => {
+    updatePriceRange();
+   }, [])
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -224,7 +242,7 @@ export default function SearchPage() {
       <div className="flex">
         {/* Sidebar - Hidden on mobile */}
         <div className="hidden lg:block">
-          <Sidebar />
+          <Sidebar priceRange={priceRange} />
         </div>
 
         {/* Main Content */}
@@ -316,7 +334,7 @@ export default function SearchPage() {
               </button>
             </div>
             <div className="p-6">
-              <Sidebar isMobile={true} />
+              <Sidebar isMobile={true} priceRange={priceRange} />
             </div>
           </div>
         </>

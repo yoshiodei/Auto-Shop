@@ -1,6 +1,8 @@
 'use client'
 
 import { Header } from '@/components/header'
+import { showToast } from '@/context/ShowToast'
+import { useAppStore } from '@/store/app-store'
 import { sendVehicleNotification } from '@/utils/notifications/sendNotification'
 import { validateVehicleForm } from '@/utils/postValidation'
 import { createVehicle } from '@/utils/postVehicle'
@@ -12,18 +14,6 @@ import { useEffect, useState } from 'react'
 
 export default function PostVehiclePage() {
   const router = useRouter();
-
-//   const finalCoverIndex = coverIndex ?? 0;
-//   const coverImage = images[finalCoverIndex];
-
-//   useEffect(() => {
-//   if (images.length > 0 && coverIndex === null) {
-//     setCoverIndex(0);
-//   }
-// }, [images]);
-
-
-
 
   const regionsAndTowns: Record<string, string[]> = {
   "Greater Accra": [
@@ -115,8 +105,6 @@ const removeImage = (index: number) => {
   });
 };
 
-
-
   const [featureData, setFeatureData] = useState<string[]>([]);
 
   const [feature, setFeature] = useState('');
@@ -187,15 +175,18 @@ const removeImage = (index: number) => {
 
     setLoading(true);
 
-    console.log('Vehicle posted:', { ...formData, features: featureData, images, location: locationData, category})
+    console.log('Vehicle posted:', { ...formData, features: featureData, images, location: locationData, category, status: 'available' })
+
     const isValid = validateVehicleForm({ ...formData, features: featureData, location: locationData, images, coverIndex }, category)
     if (!isValid || coverIndex === null) return;
 
-    const vehicleId = await createVehicle({ ...formData, features: featureData, location: locationData }, images, coverIndex)
+    const vehicleData = await createVehicle({ ...formData, features: featureData, location: locationData, category }, images, coverIndex)
     
     setLoading(false);
 
-    if (!vehicleId.success) return;
+    if (!vehicleData.success || !vehicleData.storedVehicle) return;
+
+    useAppStore.getState().addListing(vehicleData.storedVehicle);
 
     setFormData(initialFormData);
     setFeatureData([]);
@@ -207,7 +198,10 @@ const removeImage = (index: number) => {
       otherTown: ''
     });
 
-    router.push('/main');
+
+    showToast("Vehicle posted successfully!", "success");
+
+    router.push("/main");
   }
 
   return (

@@ -13,6 +13,7 @@ import { useAppStore } from '@/store/app-store';
 import type { VehicleData } from '@/lib/types';
 import { timeAgo } from '@/utils/timeAgo';
 import { formatPrice } from '@/utils/formatPrice';
+import WishlistButton from '@/components/vehicle-card-like-button';
 
 const WishlistPage = () => {
   const user                           = useAppStore((state) => state.user);
@@ -139,15 +140,7 @@ const WishlistPage = () => {
                         fill
                         className="object-cover group-hover:scale-105 transition-transform"
                       />
-                      <button
-                        // onClick={(e) => {
-                        //   e.preventDefault()
-                        //   removeFromWishlist(item.id)
-                        // }}
-                        className="absolute top-3 right-3 bg-white bg-opacity-90 hover:bg-opacity-100 p-2 rounded transition-all"
-                      >
-                        <Heart className="w-5 h-5 fill-[#FF6B7A] text-[#FF6B7A]" />
-                      </button>
+                      <WishlistButton vehicleId={item.id} />
                     </div>
 
                     <div className="p-4">

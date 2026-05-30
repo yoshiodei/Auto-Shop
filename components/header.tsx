@@ -11,6 +11,7 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   // const isAuthenticated = useAppStore((state) => state.isAuthenticated);
   const user = useAppStore((state) => state.user);
+  const isAdmin = user?.role === 'admin';
   const onModalOpen = useAppStore((state) => state.setModalOpen);
   const setIsFilterOpen = useAppStore((state) => state.setIsFilterOpen);
 
@@ -31,17 +32,18 @@ export function Header() {
               <div className="w-5 h-5 bg-white rounded-full"></div>
             </div>
             <span className="text-lg font-bold text-gray-900">AUTO WORLD</span>
+            {(isAdmin) && <span className="ml-1 text-xs font-semibold text-white rounded px-2 py-1 bg-[#FF6B7A]">Admin</span>}
           </button>
         </Link>
 
         {/* Desktop Icons */}
         {user && (<div className="hidden md:flex items-center gap-4 flex-shrink-0">
           <NotificationIcon />
-          <Link href="/wishlist">
+          {(!isAdmin) && (<Link href="/wishlist">
             <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Wishlist">
               <Heart className="w-5 h-5 text-gray-600" />
             </button>
-          </Link>
+          </Link>)}
           <ChatIcon />
           <Link href={`/profile/${user?.role === 'admin' ? 'main-admin-id' : user?.uid}`}>
             <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Profile">
@@ -97,12 +99,12 @@ export function Header() {
                   <span className="font-medium">Notifications</span>
                 </button>
               </Link>
-              <Link href="/wishlist" onClick={() => setIsMenuOpen(false)}>
+              {(!isAdmin) && (<Link href="/wishlist" onClick={() => setIsMenuOpen(false)}>
                 <button className="flex items-center gap-3 w-full p-3 hover:bg-gray-50 rounded-lg transition-colors text-gray-700">
                   <Heart className="w-5 h-5 text-[#FF6B7A]" />
                   <span className="font-medium">Wishlist</span>
                 </button>
-              </Link>
+              </Link>)}
               <Link href="/chat" onClick={() => setIsMenuOpen(false)}>
                 <button className="flex items-center gap-3 w-full p-3 hover:bg-gray-50 rounded-lg transition-colors text-gray-700">
                   <MessageCircle className="w-5 h-5 text-[#FF6B7A]" />

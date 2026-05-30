@@ -8,29 +8,48 @@ import ConditionSelection from './condition-selection'
 import TransmissionSelection from './transmission-selection'
 import FuelTypeSelection from './fuel-type-selection'
 import { use } from 'react'
+import { getPriceRangeConfig } from '@/utils/getPriceRangeConfig'
 
-export function Sidebar({ isMobile = false }: { isMobile?: boolean }) {
+export function Sidebar({
+  priceRange, 
+  isMobile = false}: { priceRange: { min: number, max: number, step: number }, isMobile?: boolean }) {
 
-  const reset = useAppStore((state: GlobalState) => state.resetFilter)
-  const setIsFiltered = useAppStore((state) => state.setIsFiltered)
+  // const reset = useAppStore((state: GlobalState) => state.resetFilter)
+  // const setIsFiltered = useAppStore((state) => state.setIsFilterActive)
+  // const vehicleList =  useAppStore((state: GlobalState) => state.vehicles);
+
+  const {
+    // isFilterActive,
+    applyFilter,
+    resetFilter
+  } = useAppStore((state) => state);
+
+  // const { min, max, step } = getPriceRangeConfig(vehicleList);
 
   const handleApply = () => {
     console.log("Filters applied");
-    setIsFiltered(true);
+    applyFilter()
+    // setIsFiltered(true);
   };
 
   const handleReset = () => {
     console.log("Filters reset");
-    reset();
-    setIsFiltered(false);
+    resetFilter(priceRange.max);
+    // setIsFiltered(false);
   };
+
+  // const priceRangeConfig = getPriceRangeConfig(vehicleList);
 
   return (
     <aside className={isMobile ? "w-full bg-white" : "w-56 lg:w-64 bg-gray-50 p-3 lg:p-6 border-r border-gray-200 overflow-y-auto max-h-screen hidden md:block"}>
       <div className="space-y-6">
         
-
-        <PriceRangeSlider />
+        <PriceRangeSlider 
+          min={priceRange.min} 
+          max={priceRange.max} 
+          step={priceRange.step} 
+          gap={priceRange.step * 2}
+        />
         <VehicleLocation />
         <ConditionSelection />
         <TransmissionSelection />

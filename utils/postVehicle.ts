@@ -1,11 +1,12 @@
 import { showToast } from "@/context/ShowToast";
-import { db, storage } from "@/lib/firebase";
+import { db, storage, Vehicle } from "@/lib/firebase";
 import {
   addDoc,
   collection,
   serverTimestamp,
   doc,
   setDoc,
+  getDoc,
 } from "firebase/firestore";
 import {
   ref,
@@ -13,6 +14,7 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import { sendVehicleNotification } from "./notifications/sendNotification";
+import { VehicleData } from "@/lib/types";
 
 type ImageItem = {
   file: File;
@@ -68,6 +70,8 @@ export const createVehicle = async (
         otherTown: formData.location.otherTown,
       },
 
+      category: formData.category,
+
       description: formData.description,
 
       gearCount: formData.gearCount,
@@ -86,11 +90,16 @@ export const createVehicle = async (
 
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
+
+      status: "available"
     };
 
     // ✅ 5. Save to Firestore
-    await setDoc(docRef, vehicleData);
-    showToast("Vehicle posted successfully!", "success");
+    await setDoc(docRef, vehicleData);  
+
+    const finalSnap = await getDoc(doc(db, 'listings', docRef.id))
+    const storedVehicle   = { id: docRef.id, ...finalSnap.data() } as VehicleData
+    
 
     await sendVehicleNotification({
       vehicleId,
@@ -99,7 +108,7 @@ export const createVehicle = async (
       imageUrl: coverImage,
     })
 
-    return { success: true, vehicleId };
+    return { success: true, vehicleId, storedVehicle};
   } catch (error) {
     console.error("Error creating vehicle:", error);
     showToast("Error posting vehicle.", "error");

@@ -16,7 +16,7 @@ export const addViewerId = async (
   vehicleId: string,
   viewerId: string       // userId for logged-in, anonId for anonymous
 ): Promise<void> => {
-  const vehicleRef  = doc(db, 'vehicles', vehicleId);
+  const vehicleRef  = doc(db, 'listings', vehicleId);
   const vehicleSnap = await getDoc(vehicleRef);
 
   if (!vehicleSnap.exists()) return;

@@ -4,9 +4,9 @@ import { useRouter, useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { fetchVehicle } from '@/utils/fetchVehicle'
 import { Header } from '@/components/header'
-import { ArrowLeft, ChevronLeft, ChevronRight, Share2, Heart, Fuel, Cog, MessageCircle, MapPin, Eye, Gauge, Car, Loader2, Flag, Trash2 } from 'lucide-react'
+import { ArrowLeft, SquarePen, ChevronLeft, ChevronRight, Share2, Heart, Fuel, Cog, MessageCircle, MapPin, Eye, Gauge, Car, Loader2, Flag, Trash2 } from 'lucide-react'
 import Image from 'next/image'
-import { VehicleData } from '@/lib/types'
+import { VehicleData, ViewData } from '@/lib/types'
 import { arrangeImageList } from '@/utils/arrangeImageList'
 import { formatPrice } from '@/utils/formatPrice'
 import LoadingScreen from '@/components/loading-screen'
@@ -19,6 +19,8 @@ import { DeleteVehicleModal } from '@/components/modals/delete-vehicle-modal'
 import { showToast } from '@/context/ShowToast'
 import { useWishlistToggle } from '@/hooks/useWishlistToggle'
 import { useTrackView } from '@/hooks/useTrackView'
+import { MarkAsSoldModal } from '@/components/modals/mark-as-sold-modal'
+import { fetchViews } from '@/utils/fetchVehicleViews'
 
 export default function VehicleDetailPage() {
   const router = useRouter()
@@ -26,37 +28,42 @@ export default function VehicleDetailPage() {
   const vehicleId = params.id
 
   const [vehicle, setVehicle] = useState<VehicleData | null>(null);
+  const [viewers, setViewers] = useState<ViewData[]>();
   const vehicles = useAppStore((state) => state.vehicles);
+
   
   const [similarVehicles, setSimilarVehicles] = useState<VehicleData[] | []>([]);
   const [loading, setLoading] = useState(true)
   const [markAsSoldLoading, setMarkAsSoldLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-
+  
   const [shareOpen,  setShareOpen]  = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-
-  useTrackView(vehicleId);
-
+  const [markAsSoldModalOpen, setMarkAsSoldModalOpen] = useState(false);
+  
+  useTrackView(vehicleId?.toLocaleString() || '')
+  
   const { handleToggle, isWishlisted } = useWishlistToggle();
-
-  const liked = isWishlisted(vehicleId);
-
+  
+  const liked = isWishlisted(vehicleId?.toLocaleString() || '');
+  
   const user =  useAppStore((state) => state.user);
+  const isAdmin = user?.role === 'admin';
   const onModalOpen = useAppStore((state) => state.setModalOpen);
   const toggleItem = useAppStore((state) => state.toggleItem);
 
-  const handleMarkAsSold = async () => {
-    setMarkAsSoldLoading(true);
-    await markVehicleAsSold(vehicle?.id || '')
-    setMarkAsSoldLoading(false);
-  }
+  // const handleMarkAsSold = async () => {
+  //   setMarkAsSoldLoading(true);
+  //   await markVehicleAsSold(vehicle?.id || '')
+  //   setMarkAsSoldLoading(false);
+  // }
 
   const fetchVehicleData = async () => {
     setLoading(true)
     if(typeof vehicleId === 'string') {
       const vehicleData = await fetchVehicle(vehicleId)
+      const viewData = await fetchViews(vehicleId)
 
       if(vehicleData && vehicles){
         const similar = getSimilarVehicles( vehicleData, vehicles )
@@ -67,6 +74,10 @@ export default function VehicleDetailPage() {
       }
 
       await setVehicle(vehicleData)
+      await setViewers(viewData)
+
+      console.log("viewers data",viewData);
+
       setLoading(false)
     }
     setLoading(false)
@@ -82,10 +93,21 @@ export default function VehicleDetailPage() {
   }
 
   const handleDeleteModal = () => {
-    if(!user) {
+    if(!user || !isAdmin) {
       onModalOpen();
       return;
-    }
+    } else {
+      setDeleteModalOpen(true);
+    } 
+  }
+
+  const handleMarkAsSold = () => {
+    if(!user || !isAdmin) {
+      onModalOpen();
+      return;
+    } else {
+      setMarkAsSoldModalOpen(true);
+    } 
   }
 
   useEffect(() => {
@@ -252,7 +274,7 @@ export default function VehicleDetailPage() {
                     </div>
                     <div className="flex items-center gap-2 text-gray-600 bg-gray-50 px-3 py-1 rounded-full">
                       <Eye className="w-5 h-5 text-[#FF6B7A]" />
-                      <span className="text-sm font-semibold">{vehicle?.views?.length ?? 0} views</span>
+                      <span className="text-sm font-semibold">{viewers?.length === 1 ? '1 view' : `${viewers?.length} views`}</span>
                     </div>
                   </div>
                 </div>
@@ -385,8 +407,8 @@ export default function VehicleDetailPage() {
                 <p className="text-gray-500 text-sm mb-2">Price</p>
                 <p className="text-4xl font-bold text-[#FF6B7A]">{"₵ " + formatPrice(Number(vehicle?.price))}</p>
 
-                {(user?.role === 'admin' && vehicle?.status === 'sold') && (
-                  <div className="mt-4">
+                {(user?.role === 'admin') && (
+                  <div className="mt-6">
                     <button 
                       className="w-full bg-[#FF6B7A] hover:bg-[#FF5566] text-white py-2 rounded-lg font-semibold transition-colors"
                       onClick={handleMarkAsSold}
@@ -412,14 +434,20 @@ export default function VehicleDetailPage() {
                 <div className="space-y-4">
                   <div>
                     <p className="text-gray-500 text-sm">Name</p>
-                    <p className="font-semibold text-gray-900">Seller Name Goes Here</p>
+                    <p className="font-semibold text-gray-900">Adofo Mireku Enterprise</p>
                   </div>
                   <div>
                     <p className="text-gray-500 text-sm mb-2">Contact</p>
-                    <p className="font-semibold text-gray-900">Seller Phone Number Goes Here</p>
+                    <p className="font-semibold text-gray-900">024 390 6137</p>
+                    <p className="font-semibold text-gray-900">024 355 5512</p>
+                    <p className="font-semibold text-gray-900">026 335 1449</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-sm mb-2">Postal Address</p>
+                    <p className="font-semibold text-gray-900">P.O. Box GP 2326, Accra North, Ghana</p>
                   </div>
 
-                  <div className="pt-4 border-t border-gray-200 space-y-3">
+                  {(!isAdmin) && (<div className="pt-4 border-t border-gray-200 space-y-3">
                     <button
                       onClick={handleMessageClick} 
                       className="w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-900 py-2 rounded-lg transition-colors"
@@ -427,7 +455,7 @@ export default function VehicleDetailPage() {
                       <MessageCircle className="w-5 h-5" />
                       Send Message
                     </button>
-                  </div>
+                  </div>)}
                 </div>
               </div>
 
@@ -437,30 +465,34 @@ export default function VehicleDetailPage() {
                     <Share2 className="w-5 h-5" />
                     Share
                   </button>
-                  <button 
+                  {(!isAdmin) && (<button 
                     onClick={() => handleOpenModal('like')} className="flex flex-1 items-center justify-center gap-2 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 font-semibold text-gray-600 transition-all cursor-pointer"
                     onMouseOver={() => setIsHovered(true)}
                     onMouseOut={() => setIsHovered(false)}
                   >
                     <Heart 
                       className="w-5 h-5" 
-                      fill={wishlistedIds.includes(vehicleId) ? "red" : "none"}
-                      color={(isHovered || wishlistedIds.includes(vehicleId)) ? "red" : "dimGray"}
+                      fill={wishlistedIds.includes(vehicleId?.toLocaleString() || '') ? "red" : "none"}
+                      color={(isHovered || wishlistedIds.includes(vehicleId?.toLocaleString() || '')) ? "red" : "dimGray"}
                     />
                     Like
-                  </button>
-                  <button onClick={() => handleOpenModal('report')} className="flex flex-1 items-center justify-center gap-2 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 font-semibold text-gray-600 transition-all cursor-pointer">
+                  </button>)}
+                  {(!isAdmin) && (<button onClick={() => handleOpenModal('report')} className="flex flex-1 items-center justify-center gap-2 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 font-semibold text-gray-600 transition-all cursor-pointer">
                     <Flag className="w-5 h-5" />
                     Report
-                  </button>
+                  </button>)}
                 </div>
               </div>
 
               {(user?.role === 'admin') && (<div className="bg-white rounded-lg p-6">
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-4">
+                  {/* <button onClick={() => router.push(`/edit-vehicle/${vehicleId}`)} className="flex flex-1 items-center justify-center gap-2 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 font-semibold text-gray-600 transition-all cursor-pointer">
+                    <SquarePen className="w-5 h-5" />
+                    Edit Vehicle
+                  </button> */}
                   <button onClick={() => handleDeleteModal()} className="flex flex-1 items-center justify-center gap-2 py-2 rounded-lg bg-[#FF6B7A] hover:bg-[#FF5566] font-semibold text-white transition-all cursor-pointer">
                     <Trash2 className="w-5 h-5" />
-                    Delete
+                    Delete Vehicle
                   </button>
                 </div>
               </div>)}
@@ -501,17 +533,9 @@ export default function VehicleDetailPage() {
                         <Car className="w-4 h-4" />
                         {vehicle.condition}
                       </div>
-                      {/* <div className="flex items-center gap-2">
-                        <Gauge className="w-4 h-4" />
-                        {car.mileage}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Fuel className="w-4 h-4" />
-                        {car.fuel}
-                      </div> */}
                     </div>
                     <div className="pt-2 border-t border-gray-200">
-                      <p className="text-lg font-bold text-[#FF6B7A]"><span className="font-light text-gray-500">Price: </span>{formatPrice(vehicle.price)}</p>
+                      <p className="text-lg font-bold text-[#FF6B7A]"><span className="font-light text-gray-500">Price: </span>₵ {formatPrice(vehicle.price)}</p>
                     </div>
                   </div>
                 </button>
@@ -524,22 +548,30 @@ export default function VehicleDetailPage() {
       <ShareVehicleModal
         isModalOpen={shareOpen}
         onModalClose={() => setShareOpen(false)}
-        vehicleId={vehicle?.id}
-        vehicleTitle={vehicle?.title}
+        vehicleId={vehicle?.id?.toLocaleString() || ''}
+        vehicleTitle={vehicle?.title?.toLocaleString() || ''}
       />
 
       <ReportVehicleModal
         isModalOpen={reportOpen}
         onModalClose={() => setReportOpen(false)}
-        vehicleId={vehicle?.id}
+        vehicleId={vehicle?.id?.toLocaleString() || ''}
       />
 
       <DeleteVehicleModal 
         isModalOpen={deleteModalOpen}
         onModalClose={() => setDeleteModalOpen(false)}
-        vehicleId={vehicle?.id}
+        vehicleId={vehicle?.id?.toLocaleString() || ''}
         imageUrls={vehicle?.imageUrls}
-        onSuccess={() => router.push('/main')}
+        onSuccess={() => useAppStore.getState().removeListing(vehicle?.id?.toLocaleString() ?? '')}
+      />
+
+      <MarkAsSoldModal 
+        isModalOpen={markAsSoldModalOpen}
+        onModalClose={() => setMarkAsSoldModalOpen(false)}
+        vehicleId={vehicle?.id?.toLocaleString() || ''}
+        imageUrls={vehicle?.imageUrls}
+        onSuccess={() => useAppStore.getState().removeListing(vehicle?.id?.toLocaleString() ?? '')}
       />
 
     </div>

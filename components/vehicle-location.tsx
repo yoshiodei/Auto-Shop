@@ -7,11 +7,11 @@ interface Location {
 
 export default function VehicleLocation() {
 
-  const region = useAppStore((state: GlobalState) => state.filter.region);
-  const town = useAppStore((state: GlobalState) => state.filter.town);
+  const region = useAppStore((state: GlobalState) => state.pendingFilter.region);
+  const town = useAppStore((state: GlobalState) => state.pendingFilter.town);
   const setLocationFilter = useAppStore((state: GlobalState) => state.setLocation);
 
-  const setIsFiltered = useAppStore((state) => state.setIsFiltered);
+  const setIsFiltered = useAppStore((state) => state.setIsFilterActive);
 
   const handleSetLocationFilter = (region: string, town: string) => {
     setIsFiltered(false);

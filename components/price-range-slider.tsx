@@ -16,22 +16,22 @@ interface PriceRangeSliderProps {
 
 export default function PriceRangeSlider({
   min = 0,
-  max = 500000,
+  max = 50000,
   step = 1000,
-  gap = 40000,
+  gap = 2000,
   currency = "₵",
   onChange,
 }: PriceRangeSliderProps) {
   // const [minVal, setMinVal] = useState(min);
   // const [maxVal, setMaxVal] = useState(max);
 
-  const maxValue = useAppStore((state: GlobalState) => state.filter.maxPrice);
-  const minValue = useAppStore((state: GlobalState) => state.filter.minPrice);
+  const maxValue = useAppStore((state: GlobalState) => state.pendingFilter.maxPrice);
+  const minValue = useAppStore((state: GlobalState) => state.pendingFilter.minPrice);
 
   const setMaxValue = useAppStore((state: GlobalState) => state.setMaxPrice);
   const setMinValue = useAppStore((state: GlobalState) => state.setMinPrice);
 
-  const setIsFiltered = useAppStore((state) => state.setIsFiltered);
+  // const setIsFiltered = useAppStore((state) => state.setIsFilterActive);
 
   // const minVal = useAppStore((state) => state.filters.minVal);
     
@@ -41,10 +41,12 @@ export default function PriceRangeSlider({
 
   const handleMinChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = Math.min(Number(e.target.value), maxValue - gap);
+      // const value = Math.min(Number(e.target.value), maxValue - gap);
+      const value = Math.min(Number(e.target.value), max - gap);
       // setMinVal(value);
-      setIsFiltered(false);
+      // setIsFiltered(false);
       setMinValue(value);
+      // onChange?.(value, max);
       onChange?.(value, maxValue);
     },
     [maxValue, gap, onChange]
@@ -52,11 +54,13 @@ export default function PriceRangeSlider({
 
   const handleMaxChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = Math.max(Number(e.target.value), minValue + gap);
+      // const value = Math.max(Number(e.target.value), minValue + gap);
+      const value = Math.max(Number(e.target.value), min + gap);
       // setMaxVal(value);
-      setIsFiltered(false);
+      // setIsFiltered(false);
       setMaxValue(value);
 
+      // onChange?.(min, value);
       onChange?.(minValue, value);
     },
     [minValue, gap, onChange]
@@ -80,6 +84,7 @@ export default function PriceRangeSlider({
           </label>
           <input
             readOnly
+            // value={formatPrice(min)}
             value={formatPrice(minValue)}
             className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 font-medium"
           />
@@ -95,6 +100,7 @@ export default function PriceRangeSlider({
           </label>
           <input
             readOnly
+            // value={formatPrice(max)}
             value={formatPrice(maxValue)}
             className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 font-medium"
           />
@@ -121,6 +127,7 @@ export default function PriceRangeSlider({
           min={min}
           max={max}
           step={step}
+          // value={min}
           value={minValue}
           onChange={handleMinChange}
           className="pointer-events-none absolute inset-0 h-full w-full appearance-none bg-transparent
@@ -147,6 +154,7 @@ export default function PriceRangeSlider({
             [&::-moz-range-thumb]:border-[#FF6B7A]
             [&::-moz-range-thumb]:bg-white
             [&::-moz-range-thumb]:shadow-md"
+          // style={{ zIndex: min > max - gap ? 5 : 3 }}
           style={{ zIndex: minValue > max - gap ? 5 : 3 }}
         />
 
@@ -157,6 +165,7 @@ export default function PriceRangeSlider({
           max={max}
           step={step}
           value={maxValue}
+          // value={max}
           onChange={handleMaxChange}
           className="pointer-events-none absolute inset-0 h-full w-full appearance-none bg-transparent
             [&::-webkit-slider-thumb]:pointer-events-auto
@@ -188,7 +197,8 @@ export default function PriceRangeSlider({
 
       {/* Min / Max labels */}
       <div className="mt-4 flex justify-between text-xs text-gray-400">
-        <span>{formatPrice(minValue)}</span>
+        {/* <span>{formatPrice(minValue)}</span> */}
+        <span>{formatPrice(min)}</span>
         <span>{formatPrice(max)}</span>
       </div>
     </div>

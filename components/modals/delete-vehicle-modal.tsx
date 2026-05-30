@@ -8,6 +8,7 @@ import { doc, deleteDoc } from 'firebase/firestore';
 import { ref, deleteObject } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { showToast } from '@/context/ShowToast';
+import { deleteVehicle } from '@/utils/vehicles/deleteVehicle';
 
 type DeleteVehicleModalProps = {
   isModalOpen:  boolean;
@@ -41,7 +42,7 @@ const deleteVehicleImages = async (imageUrls: string[]): Promise<void> => {
 
 // Delete the vehicle doc from Firestore
 const deleteVehicleDoc = async (vehicleId: string): Promise<void> => {
-  await deleteDoc(doc(db, 'vehicles', vehicleId));
+  await deleteDoc(doc(db, 'listings', vehicleId));
 };
 
 export function DeleteVehicleModal({
@@ -56,11 +57,7 @@ export function DeleteVehicleModal({
   const handleDelete = async () => {
     setLoading(true);
     try {
-      // 1. Delete all images from Firebase Storage
-      await deleteVehicleImages(imageUrls);
-
-      // 2. Delete the vehicle document from Firestore
-      await deleteVehicleDoc(vehicleId);
+      await deleteVehicle(vehicleId)
 
       showToast('Vehicle deleted successfully', 'success');
       onModalClose();
