@@ -12,10 +12,10 @@ export function Header() {
   // const isAuthenticated = useAppStore((state) => state.isAuthenticated);
   const user = useAppStore((state) => state.user);
   const isAdmin = user?.role === 'admin';
-  const onModalOpen = useAppStore((state) => state.setModalOpen);
+  // const onModalOpen = useAppStore((state) => state.setModalOpen);
   const setIsFilterOpen = useAppStore((state) => state.setIsFilterOpen);
 
-  const notificationUnreadCount = useAppStore((state) => state.notificationUnreadCount )
+  // const notificationUnreadCount = useAppStore((state) => state.notificationUnreadCount )
 
   const handleOpenMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -117,12 +117,12 @@ export function Header() {
                   <span className="font-medium">Profile</span>
                 </button>
               </Link>
-              <Link href="/post-vehicle" onClick={() => setIsMenuOpen(false)}>
+              {(!isAdmin) && (<Link href="/post-vehicle" onClick={() => setIsMenuOpen(false)}>
                 <button className="flex items-center gap-3 w-full rounded-lg transition-colors text-white py-3 px-4 bg-black rounded-lg hover:bg-gray-100 transition-colors font-bold">
                   <Plus className="w-5 h-5 text-white" />
-                  <span className="font-medium text-gray-700">Post Vehicle</span>
+                  <span className="font-medium text-white">Post Vehicle</span>
                 </button>
-              </Link>
+              </Link>)}
             </div>)}
 
             {!user && (<div className="p-6 space-y-4">

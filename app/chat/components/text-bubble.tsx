@@ -6,7 +6,7 @@ export default function TextBubble({message, isMine}: {
 }) {
 
     const time = message.createdAt instanceof Timestamp
-    ? message.createdAt.toDate().toLocaleTimeString('en-US', {
+    ? message?.createdAt?.toDate()?.toLocaleTimeString('en-US', {
         hour: '2-digit', minute: '2-digit',
       })
     : '';

@@ -392,7 +392,7 @@ useEffect(() => {
                         GH₵ {formatPrice(vehicle.price)}
                       </td>
                       <td className="px-6 py-4 text-gray-700">
-                        {vehicle.views.toLocaleString()}
+                        {vehicle.views?.toLocaleString()}
                       </td>
                       <td className="px-6 py-4">
                         <CategoryBadge category={vehicle.category} />

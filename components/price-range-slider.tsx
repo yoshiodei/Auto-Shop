@@ -37,7 +37,7 @@ export default function PriceRangeSlider({
     
 
   const formatPrice = (val: number) =>
-    `${currency}${val.toLocaleString()}`;
+    `${currency}${val?.toLocaleString()}`;
 
   const handleMinChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

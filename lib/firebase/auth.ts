@@ -70,7 +70,7 @@ export const signUpUser = async (data: SignUpData): Promise<User> => {
       totalViews: 0,
       avgResponseTime: 'N/A',
       totalRevenue: '₵ 0',
-      joined: new Date().toLocaleDateString('en-US', { 
+      joined: new Date()?.toLocaleDateString('en-US', { 
         year: 'numeric', 
         month: 'long' 
       }),

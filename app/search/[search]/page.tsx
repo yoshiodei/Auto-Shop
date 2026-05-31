@@ -247,7 +247,7 @@ export default function SearchPage() {
 
         {/* Main Content */}
         <main className="flex-1">
-          <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="max-w-7xl mx-auto p-3 lg:p-8">
             {/* Back Button and Search Info */}
             <div className="mb-8">
               <button
