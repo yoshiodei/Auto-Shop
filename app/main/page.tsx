@@ -191,8 +191,8 @@ export default function MainPage() {
             { (filteredVehicles.length === 0) && (<EmptyListing />)}
 
           </div>
+        <Footer />
         </main>
-        {/* <Footer /> */}
       </div>
 
       {/* Mobile Filter Bottom Sheet */}
