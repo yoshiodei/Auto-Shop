@@ -192,7 +192,7 @@ export default function MainPage() {
 
           </div>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
 
       {/* Mobile Filter Bottom Sheet */}
