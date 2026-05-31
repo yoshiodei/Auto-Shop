@@ -487,11 +487,11 @@ const removeImage = (index: number) => {
 
             {/* Location */}
             <div className="bg-white rounded-lg p-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Location <span className="text-red-600">*</span></h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Location</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Region
+                Region<span className="text-red-600">*</span>
               </label>
               <select
                 name="region"
@@ -513,7 +513,7 @@ const removeImage = (index: number) => {
             {/* {locationData.region && ( */}
               <div className="">
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Town
+                  Town<span className="text-red-600">*</span>
                 </label>
 
                 <select

@@ -53,7 +53,7 @@ export function ShareVehicleModal({
         <DialogHeader>
           <DialogTitle className="text-gray-900">Share Vehicle</DialogTitle>
           <DialogDescription>
-            Share this vehicle with others via link or social media.
+            Share this vehicle with others.
           </DialogDescription>
         </DialogHeader>
 
@@ -109,14 +109,14 @@ export function ShareVehicleModal({
           </button>
         </div>
 
-        <Button
+        {/* <Button
           type="button"
           variant="secondary"
           className="w-full bg-gray-200 text-gray-900 hover:bg-gray-300 mt-2"
           onClick={onModalClose}
         >
           Close
-        </Button>
+        </Button> */}
       </DialogContent>
     </Dialog>
   );

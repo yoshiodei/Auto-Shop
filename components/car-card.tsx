@@ -124,12 +124,12 @@ export function CarCard({ vehicleData }: { vehicleData: VehicleData}) {
           
           <div className="flex flex-row lg:flex-col">
             <p className="text-gray-500">Condition</p>
-            <p className="font-semibold text-gray-900 ml-1 lg:ml-0 truncate w-auto">{condition}</p>
+            <p className="font-semibold flex-1 text-gray-900 ml-1 lg:ml-0 truncate w-auto">{condition}</p>
           </div>
 
           <div className="flex flex-row lg:flex-col">
             <p className="text-gray-500">Location</p>
-            <p className="font-semibold text-gray-900 ml-1 lg:ml-0 truncate">{`${location.region}, ${location.town}`}</p>
+            <p className="font-semibold flex-1 text-gray-900 ml-1 lg:ml-0 truncate">{`${location.region}, ${location.town}`}</p>
           </div>
         </div>
 

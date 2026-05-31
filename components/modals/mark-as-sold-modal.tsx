@@ -8,6 +8,7 @@ import { doc, getDoc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firest
 import { db } from '@/lib/firebase';
 import { showToast } from '@/context/ShowToast';
 import { markVehicleAsSold } from '@/utils/vehicles/markAsSold';
+import { useRouter } from 'next/navigation';
 
 type MarkAsSoldModalProps = {
   isModalOpen:  boolean;
@@ -15,6 +16,8 @@ type MarkAsSoldModalProps = {
   vehicleId:    string;
   onSuccess?:   () => void;
 };
+
+const router = useRouter();
 
 // Fetch the full vehicle doc
 const getVehicleDoc = async (vehicleId: string) => {
@@ -55,6 +58,7 @@ export function MarkAsSoldModal({
       showToast('Vehicle marked as sold', 'success');
       onModalClose();
       onSuccess?.();
+      router.push('/main');
     } catch (error: any) {
       console.error(error.message);
       showToast('Failed to mark vehicle as sold', 'error');

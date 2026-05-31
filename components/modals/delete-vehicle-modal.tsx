@@ -9,6 +9,7 @@ import { ref, deleteObject } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { showToast } from '@/context/ShowToast';
 import { deleteVehicle } from '@/utils/vehicles/deleteVehicle';
+import { useRouter } from 'next/navigation';
 
 type DeleteVehicleModalProps = {
   isModalOpen:  boolean;
@@ -17,6 +18,8 @@ type DeleteVehicleModalProps = {
   imageUrls:    string[];   // all image URLs stored in Firebase Storage
   onSuccess?:   () => void; // e.g. redirect or refresh list after deletion
 };
+
+const router = useRouter();
 
 // Extract the storage path from a Firebase Storage download URL
 const getStoragePathFromUrl = (url: string): string => {
@@ -62,6 +65,7 @@ export function DeleteVehicleModal({
       showToast('Vehicle deleted successfully', 'success');
       onModalClose();
       onSuccess?.();
+      router.push('/main');
     } catch (error: any) {
       console.error(error.message);
       showToast('Failed to delete vehicle', 'error');

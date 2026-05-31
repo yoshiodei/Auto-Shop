@@ -12,7 +12,8 @@ import { getPriceRangeConfig } from '@/utils/getPriceRangeConfig'
 
 export function Sidebar({
   priceRange, 
-  isMobile = false}: { priceRange: { min: number, max: number, step: number }, isMobile?: boolean }) {
+  closeFilter,
+  isMobile = false}: { priceRange: { min: number, max: number, step: number }, isMobile?: boolean, closeFilter?: () => void }) {
 
   // const reset = useAppStore((state: GlobalState) => state.resetFilter)
   // const setIsFiltered = useAppStore((state) => state.setIsFilterActive)
@@ -29,12 +30,18 @@ export function Sidebar({
   const handleApply = () => {
     console.log("Filters applied");
     applyFilter()
+    if (isMobile) {
+      closeFilter?.();
+    }
     // setIsFiltered(true);
   };
 
   const handleReset = () => {
     console.log("Filters reset");
     resetFilter(priceRange.max);
+    if (isMobile) {
+      closeFilter?.();
+    }
     // setIsFiltered(false);
   };
 
