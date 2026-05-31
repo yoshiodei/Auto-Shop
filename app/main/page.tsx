@@ -190,6 +190,7 @@ export default function MainPage() {
             { (filteredVehicles.length === 0) && (<EmptyListing />)}
 
           </div>
+          <br/>
         </main>
       </div>
 
