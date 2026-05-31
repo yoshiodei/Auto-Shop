@@ -111,7 +111,7 @@ export function Header() {
                   <span className="font-medium">Messages</span>
                 </button>
               </Link>
-              <Link href="/profile" onClick={() => setIsMenuOpen(false)}>
+              <Link href={`/profile/${user?.role === 'admin' ? 'main-admin-id' : user?.uid}`} onClick={() => setIsMenuOpen(false)}>
                 <button className="flex items-center gap-3 w-full p-3 hover:bg-gray-50 rounded-lg transition-colors text-gray-700">
                   <User className="w-5 h-5 text-[#FF6B7A]" />
                   <span className="font-medium">Profile</span>
