@@ -563,6 +563,7 @@ export default function VehicleDetailPage() {
         onModalClose={() => setDeleteModalOpen(false)}
         vehicleId={vehicle?.id?.toLocaleString() || ''}
         imageUrls={vehicle?.imageUrls}
+        router={router}
         onSuccess={() => useAppStore.getState().removeListing(vehicle?.id?.toLocaleString() ?? '')}
       />
 
@@ -570,6 +571,7 @@ export default function VehicleDetailPage() {
         isModalOpen={markAsSoldModalOpen}
         onModalClose={() => setMarkAsSoldModalOpen(false)}
         vehicleId={vehicle?.id?.toLocaleString() || ''}
+        router={router}
         imageUrls={vehicle?.imageUrls}
         onSuccess={() => useAppStore.getState().removeListing(vehicle?.id?.toLocaleString() ?? '')}
       />

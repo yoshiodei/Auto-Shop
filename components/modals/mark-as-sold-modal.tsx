@@ -15,9 +15,8 @@ type MarkAsSoldModalProps = {
   onModalClose: () => void;
   vehicleId:    string;
   onSuccess?:   () => void;
+  router: any; // Next.js router for navigation after marking as sold
 };
-
-const router = useRouter();
 
 // Fetch the full vehicle doc
 const getVehicleDoc = async (vehicleId: string) => {
@@ -48,6 +47,7 @@ export function MarkAsSoldModal({
   onModalClose,
   vehicleId,
   onSuccess,
+  router
 }: MarkAsSoldModalProps) {
   const [loading, setLoading] = useState(false);
 

@@ -17,9 +17,8 @@ type DeleteVehicleModalProps = {
   vehicleId:    string;
   imageUrls:    string[];   // all image URLs stored in Firebase Storage
   onSuccess?:   () => void; // e.g. redirect or refresh list after deletion
+  router: any; // Next.js router for navigation after deletion
 };
-
-const router = useRouter();
 
 // Extract the storage path from a Firebase Storage download URL
 const getStoragePathFromUrl = (url: string): string => {
@@ -54,6 +53,7 @@ export function DeleteVehicleModal({
   vehicleId,
   imageUrls,
   onSuccess,
+  router
 }: DeleteVehicleModalProps) {
   const [loading, setLoading] = useState(false);
 
