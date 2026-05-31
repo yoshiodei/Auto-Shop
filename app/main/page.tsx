@@ -24,7 +24,6 @@ export default function MainPage() {
 
   const onModalOpen = useAppStore((state) => state.setModalOpen);
 
-
   const isFilterOpen = useAppStore((state) => state.isFilterOpen);
   const setIsFilterOpen = useAppStore((state) => state.setIsFilterOpen);
   const setMaxPrice = useAppStore((state) => state.setMaxPrice);
@@ -219,7 +218,7 @@ export default function MainPage() {
             </div>
             {/* Filter Content */}
             <div className="p-6 space-y-6">
-              <Sidebar priceRange={priceRange} isMobile={true} />
+              <Sidebar priceRange={priceRange} isMobile={true} closeFilter={() => setIsFilterOpen(false)} />
             </div>
           </div>
         </>

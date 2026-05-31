@@ -1,6 +1,6 @@
 'use client'
 
-import { Menu, Bell, Heart, MessageCircle, User, X } from 'lucide-react'
+import { Menu, Bell, Heart, MessageCircle, User, X, Plus } from 'lucide-react'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useAppStore } from '@/store/app-store'
@@ -115,6 +115,12 @@ export function Header() {
                 <button className="flex items-center gap-3 w-full p-3 hover:bg-gray-50 rounded-lg transition-colors text-gray-700">
                   <User className="w-5 h-5 text-[#FF6B7A]" />
                   <span className="font-medium">Profile</span>
+                </button>
+              </Link>
+              <Link href="/post-vehicle" onClick={() => setIsMenuOpen(false)}>
+                <button className="flex items-center gap-3 w-full rounded-lg transition-colors text-white py-3 px-4 bg-black rounded-lg hover:bg-gray-100 transition-colors font-bold">
+                  <Plus className="w-5 h-5 text-white" />
+                  <span className="font-medium text-gray-700">Post Vehicle</span>
                 </button>
               </Link>
             </div>)}
