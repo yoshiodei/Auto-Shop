@@ -15,6 +15,7 @@ import { getPriceRangeConfig } from '@/utils/getPriceRangeConfig'
 import { applyVehicleFilters } from '@/utils/applyVehicleFilters'
 import { set } from 'date-fns'
 import { trackSiteVisit } from '@/utils/analytics/trackSiteVisit'
+import Footer from '@/components/footer'
 
 
 
@@ -190,7 +191,7 @@ export default function MainPage() {
             { (filteredVehicles.length === 0) && (<EmptyListing />)}
 
           </div>
-          <br/>
+          <Footer />
         </main>
       </div>
 
