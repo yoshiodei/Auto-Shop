@@ -18,12 +18,12 @@ export const trackVehicleView = async ({
   const isAnon   = !userId;
   const viewerId = isAnon ? getAnonId() : userId!;
 
-  console.log(isAnon ? 'isAnon' : `The viewer id is ${viewerId}`)
+  console.log(isAnon ? 'Viewing as anonymous' : `The viewer id is ${viewerId}`)
 
   // Check localStorage first to avoid unnecessary Firestore reads
   const alreadyViewed = isAnon
     ? hasViewedVehicleAsAnon(vehicleId)
-    : hasViewedVehicleAsUser(userId!, vehicleId);
+    : hasViewedVehicleAsUser(userId, vehicleId);
 
   if (alreadyViewed) return;
 

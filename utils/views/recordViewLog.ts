@@ -12,7 +12,7 @@ export const recordViewLog = async ({
   viewerId,
   isAnon,
 }: ViewLogPayload): Promise<void> => {
-  await addDoc(collection(db, 'vehicles', vehicleId, 'views'), {
+  await addDoc(collection(db, 'listings', vehicleId, 'views'), {
     viewerId,
     isAnon,
     viewedAt: serverTimestamp(),

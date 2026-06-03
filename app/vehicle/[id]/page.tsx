@@ -28,7 +28,7 @@ export default function VehicleDetailPage() {
   const vehicleId = params.id
 
   const [vehicle, setVehicle] = useState<VehicleData | null>(null);
-  const [viewers, setViewers] = useState<ViewData[]>();
+  const [viewers, setViewers] = useState<string[]>();
   const vehicles = useAppStore((state) => state.vehicles);
 
   
@@ -74,7 +74,7 @@ export default function VehicleDetailPage() {
       }
 
       await setVehicle(vehicleData)
-      await setViewers(viewData)
+      await setViewers(vehicleData?.views || [])
 
       console.log("viewers data",viewData);
 
