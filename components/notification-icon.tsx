@@ -7,7 +7,10 @@ import { useAppStore } from '@/store/app-store';
 
 const NotificationIcon = () => {
   const router       = useRouter();
-  const unreadCount = useAppStore((state) => state.notificationUnreadCount);
+  // const unreadCount = useAppStore((state) => state.notificationUnreadCount);
+
+  const notifications    = useAppStore((state) => state.notifications)
+  const notifUnreadCount = notifications.filter((n) => !n.isRead).length
 
   return (
     <button
@@ -17,9 +20,9 @@ const NotificationIcon = () => {
     >
       <Bell size={22} className="text-gray-700" />
 
-      {unreadCount > 0 && (
+      {notifUnreadCount > 0 && (
         <span className="absolute bg-red-500 text-white px-1 rounded-full text-xs top-0 left-0 font-bold">
-          {unreadCount > 99 ? '99+' : unreadCount}
+          {notifUnreadCount > 99 ? '99+' : notifUnreadCount}
         </span>
       )}
     </button>

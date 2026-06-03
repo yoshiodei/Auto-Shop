@@ -117,7 +117,7 @@ export function Header() {
                   <span className="font-medium">Profile</span>
                 </button>
               </Link>
-              {(!isAdmin) && (<Link href="/post-vehicle" onClick={() => setIsMenuOpen(false)}>
+              {(isAdmin) && (<Link href="/post-vehicle" onClick={() => setIsMenuOpen(false)}>
                 <button className="flex items-center gap-3 w-full rounded-lg transition-colors text-white py-3 px-4 bg-black rounded-lg hover:bg-gray-100 transition-colors font-bold">
                   <Plus className="w-5 h-5 text-white" />
                   <span className="font-medium text-white">Post Vehicle</span>

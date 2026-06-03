@@ -213,18 +213,22 @@ export default function VehicleDetailPage() {
                 className="object-contain"
               />
               {/* Navigation Buttons */}
-              <button
-                onClick={prevImage}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white opacity-50 hover:opacity-100 p-2 rounded-full transition-all z-10"
-              >
-                <ChevronLeft className="w-6 h-6 text-gray-700" />
-              </button>
-              <button
-                onClick={nextImage}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white opacity-50 hover:opacity-100 p-2 rounded-full transition-all z-10"
-              >
-                <ChevronRight className="w-6 h-6 text-gray-700" />
-              </button>
+              {imageList.length > 1 && (
+                <button
+                  onClick={prevImage}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white opacity-50 hover:opacity-100 p-2 rounded-full transition-all z-10"
+                >
+                  <ChevronLeft className="w-6 h-6 text-gray-700" />
+                </button>
+              )}
+              {imageList.length > 1 && (
+                <button
+                  onClick={nextImage}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white opacity-50 hover:opacity-100 p-2 rounded-full transition-all z-10"
+                >
+                  <ChevronRight className="w-6 h-6 text-gray-700" />
+                </button>
+              )}
               {/* Image Counter */}
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black opacity-30 text-white px-3 py-1 rounded-full text-sm">
                 {currentImageIndex + 1} / {imageList.length}

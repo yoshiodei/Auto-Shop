@@ -99,14 +99,17 @@ export const createVehicle = async (
 
     const finalSnap = await getDoc(doc(db, 'listings', docRef.id))
     const storedVehicle   = { id: docRef.id, ...finalSnap.data() } as VehicleData
-    
 
     await sendVehicleNotification({
-      vehicleId,
-      vehicleTitle: formData.title || `${formData.brand} ${formData.model} ${formData.year}`,
-      postedBy: 'admin',
-      imageUrl: coverImage,
-    })
+    vehicleId:    docRef.id,
+    vehicleTitle: formData.category === 'car'
+      ? `${formData?.year} ${formData?.brand} ${formData?.model}`.trim()
+      : formData.title,
+    postedBy:     'Adofo Mirefu Enterprise',
+    imageUrl:     images[coverIndex]
+      ? URL.createObjectURL((images[coverIndex] as any).file)
+      : null,
+  })
 
     return { success: true, vehicleId, storedVehicle};
   } catch (error) {

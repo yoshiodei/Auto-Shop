@@ -24,12 +24,25 @@ import { Header } from '@/components/header'
 import { usePagination } from '@/hooks/use-pagination'
 import { PaginationBar } from '@/components/analytics/pagination-bar'
 
-// ── Types ─────────────────────────────────────────────────────
+import { Trash2 }                        from 'lucide-react'
+import {
+  fetchSoldVehicles,
+  fetchDeletedVehicles,
+  fetchReports,
+  type SoldVehicleRow,
+  type DeletedVehicleRow,
+  type ReportRow,
+}                                        from '@/utils/analytics/fetchAnalyticsData'
+import { AdminTable, type Column }       from '@/components/analytics/admin-table'
+import { ReportStatusBadge }             from '@/components/analytics/reports-status-badge'
+import { timeAgo }                       from '@/utils/timeAgo'
+
 type Period      = 'day' | 'week' | 'month'
 type SortOrder   = 'highest' | 'lowest'
 type CategoryTab = 'all' | 'car' | 'bike'
 
-// ── Summary card ──────────────────────────────────────────────
+
+
 function SummaryCard({
   label, value, icon: Icon, color,
 }: {
@@ -107,6 +120,14 @@ export default function AnalyticsPage() {
   const [loadingChart,   setLoadingChart]   = useState(true)
   const [loadingTable,   setLoadingTable]   = useState(true)
 
+  const [soldVehicles,    setSoldVehicles]    = useState<SoldVehicleRow[]>([])
+  const [deletedVehicles, setDeletedVehicles] = useState<DeletedVehicleRow[]>([])
+  const [reports,         setReports]         = useState<ReportRow[]>([])
+  const [loadingSold,     setLoadingSold]     = useState(true)
+  const [loadingDeleted,  setLoadingDeleted]  = useState(true)
+  const [loadingReports,  setLoadingReports]  = useState(true)
+
+
     // Load summary
   useEffect(() => {
     fetchSummary()
@@ -128,6 +149,24 @@ export default function AnalyticsPage() {
       .then(setVehicles)
       .finally(() => setLoadingTable(false))
   }, [])
+
+  useEffect(() => {
+  fetchSoldVehicles()
+    .then(setSoldVehicles)
+    .finally(() => setLoadingSold(false))
+}, [])
+
+useEffect(() => {
+  fetchDeletedVehicles()
+    .then(setDeletedVehicles)
+    .finally(() => setLoadingDeleted(false))
+}, [])
+
+useEffect(() => {
+  fetchReports()
+    .then(setReports)
+    .finally(() => setLoadingReports(false))
+}, [])
 
   // Filter + sort vehicles
   const filteredVehicles = useMemo(() => {
@@ -175,6 +214,32 @@ useEffect(() => {
     { label: 'Cars',  value: 'car'  },
     { label: 'Bikes', value: 'bike' },
   ]
+
+  // ── Column definitions ────────────────────────────────────────
+const soldColumns: Column<SoldVehicleRow>[] = [
+  { label: 'Name',      render: (r) => <span className="font-medium text-gray-900">{r.name}</span> },
+  { label: 'Price',     render: (r) => `GH₵ ${formatPrice(r.price)}` },
+  { label: 'Category',  render: (r) => <CategoryBadge category={r.category} /> },
+  { label: 'Condition', render: (r) => <span className="capitalize">{r.condition}</span> },
+  { label: 'Sold',      render: (r) => r.soldAt ? timeAgo(r.soldAt) : '—' },
+]
+
+const deletedColumns: Column<DeletedVehicleRow>[] = [
+  { label: 'Name',      render: (r) => <span className="font-medium text-gray-900">{r.name}</span> },
+  { label: 'Price',     render: (r) => `GH₵ ${formatPrice(r.price)}` },
+  { label: 'Category',  render: (r) => <CategoryBadge category={r.category} /> },
+  { label: 'Condition', render: (r) => <span className="capitalize">{r.condition}</span> },
+  { label: 'Deleted',   render: (r) => r.deletedAt ? timeAgo(r.deletedAt) : '—' },
+]
+
+const reportColumns: Column<ReportRow>[] = [
+  { label: 'Type',        render: (r) => <span className="font-medium text-gray-900">{r.reportType}</span> },
+  { label: 'Description', render: (r) => <span className="line-clamp-1 max-w-xs">{r.description}</span> },
+  { label: 'Reported by', render: (r) => <span className="font-mono text-xs text-gray-500">{r.reportedBy}</span> },
+  { label: 'Status',      render: (r) => <ReportStatusBadge status={r.status} /> },
+  { label: 'Date',        render: (r) => r.createdAt ? timeAgo(r.createdAt) : '—' },
+]
+
   
   return (
     <>
@@ -432,6 +497,109 @@ useEffect(() => {
             </div>
           )}
         </div>
+
+        {/* ── Sold vehicles ──────────────────────────────────── */}
+<div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+  <div className="p-6 border-b border-gray-100">
+    <div className="flex items-center justify-between">
+      <div>
+        <h2 className="text-base font-semibold text-gray-900">Sold vehicles</h2>
+        <p className="text-sm text-gray-500 mt-0.5">
+          {soldVehicles.length} vehicle{soldVehicles.length !== 1 ? 's' : ''} sold
+        </p>
+      </div>
+      <span className="px-3 py-1 text-xs font-medium bg-green-50 text-green-700 border border-green-200 rounded-full">
+        {soldVehicles.length} total
+      </span>
+    </div>
+  </div>
+
+  {loadingSold ? (
+    <div className="p-6 flex flex-col gap-3">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="h-12 bg-gray-100 rounded-lg animate-pulse" />
+      ))}
+    </div>
+  ) : (
+    <AdminTable
+      rows={soldVehicles}
+      columns={soldColumns}
+      collectionName="soldVehicles"
+      onDelete={(id) => setSoldVehicles((prev) => prev.filter((v) => v.id !== id))}
+      onResolved={() => {}}
+      emptyMessage="No sold vehicles yet."
+    />
+  )}
+</div>
+
+{/* ── Deleted vehicles ────────────────────────────────── */}
+<div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+  <div className="p-6 border-b border-gray-100">
+    <div className="flex items-center justify-between">
+      <div>
+        <h2 className="text-base font-semibold text-gray-900">Deleted vehicles</h2>
+        <p className="text-sm text-gray-500 mt-0.5">
+          {deletedVehicles.length} vehicle{deletedVehicles.length !== 1 ? 's' : ''} deleted
+        </p>
+      </div>
+      <span className="px-3 py-1 text-xs font-medium bg-red-50 text-red-700 border border-red-200 rounded-full">
+        {deletedVehicles.length} total
+      </span>
+    </div>
+  </div>
+
+  {loadingDeleted ? (
+    <div className="p-6 flex flex-col gap-3">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="h-12 bg-gray-100 rounded-lg animate-pulse" />
+      ))}
+    </div>
+  ) : (
+    <AdminTable
+      rows={deletedVehicles}
+      columns={deletedColumns}
+      collectionName="deletedVehicles"
+      onDelete={(id) => setDeletedVehicles((prev) => prev.filter((v) => v.id !== id))}
+      onResolved={(id) => setDeletedVehicles((prev) => prev.map((v) => v.id === id ? { ...v, status: 'resolved' } : v))}
+      emptyMessage="No deleted vehicles yet."
+    />
+  )}
+</div>
+
+{/* ── Reports ──────────────────────────────────────────── */}
+<div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+  <div className="p-6 border-b border-gray-100">
+    <div className="flex items-center justify-between">
+      <div>
+        <h2 className="text-base font-semibold text-gray-900">Reports</h2>
+        <p className="text-sm text-gray-500 mt-0.5">
+          {reports.length} report{reports.length !== 1 ? 's' : ''} submitted
+        </p>
+      </div>
+      <span className="px-3 py-1 text-xs font-medium bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-full">
+        {reports.filter((r) => r.status === 'pending').length} pending
+      </span>
+    </div>
+  </div>
+
+  {loadingReports ? (
+    <div className="p-6 flex flex-col gap-3">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="h-12 bg-gray-100 rounded-lg animate-pulse" />
+      ))}
+    </div>
+  ) : (
+    <AdminTable
+      rows={reports}
+      columns={reportColumns}
+      collectionName="reports"
+      onDelete={(id) => setReports((prev) => prev.filter((r) => r.id !== id))}
+      onResolved={(id) => setReports((prev) => prev.map((r) => r.id === id ? { ...r, status: 'resolved' } : r))}
+      emptyMessage="No reports submitted yet."
+    />
+  )}
+</div>
+
       </div>
     </div>
     </>

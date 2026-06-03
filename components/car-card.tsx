@@ -144,7 +144,7 @@ export function CarCard({ vehicleData }: { vehicleData: VehicleData}) {
           <button 
             onClick={() => handleShowDetails(id)}
             className="bg-[#FF6B7A] hover:bg-[#FF5566] text-white px-3 py-1 rounded text-xs font-semibold transition-colors">
-            More details
+            View Vehicle
           </button>
         </div>
       </div>

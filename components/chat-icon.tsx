@@ -6,7 +6,8 @@ import { useAppStore } from '@/store/app-store'
 
 export function ChatIcon() {
   const router      = useRouter()
-  const unreadCount = useAppStore((state) => state.unreadChatCount)
+  // const unreadCount = useAppStore((state) => state.unreadChatCount)
+  const chatUnreadCount  = useAppStore((state) => state.chatUnreadCount)
 
   return (
     <button
@@ -16,9 +17,9 @@ export function ChatIcon() {
     >
       <MessageCircle className="w-5 h-5 text-gray-600" />
 
-      {unreadCount > 0 && (
+      {chatUnreadCount > 0 && (
         <span className="absolute bg-red-500 text-white px-1 rounded-full text-xs top-0 left-0 font-bold">
-          {unreadCount > 99 ? '99+' : unreadCount}
+          {chatUnreadCount > 99 ? '99+' : chatUnreadCount}
         </span>
       )}
     </button>

@@ -2,7 +2,7 @@
 
 import { useState }                          from 'react';
 import { useRouter }                         from 'next/navigation';
-import { Bell, ArrowRight, CheckCheck }      from 'lucide-react';
+import { Bell, ArrowRight, CheckCheck, Trash2 }      from 'lucide-react';
 import { markAsRead, markAllAsRead }         from '@/utils/notifications/markNotificationAsRead';
 import { timeAgo }                        from '@/utils/timeAgo';
 import { Button }                            from '@/components/ui/button';
@@ -10,6 +10,8 @@ import type { Notification }                 from '@/lib/types';
 import { useAppStore } from '@/store/app-store';
 import LoadingScreen from '@/components/loading-screen';
 import { Header } from '@/components/header';
+import { NotificationModal } from '@/components/modals/view-notification';
+import { DeleteNotificationsModal } from '@/components/modals/delete-all-notifications';
 
 type Tab = 'all' | 'unread' | 'read';
 
@@ -22,10 +24,17 @@ const tabs: { label: string; value: Tab }[] = [
 const NotificationsPage = () => {
   const router = useRouter();
   const user = useAppStore((state) => state.user);
+  const isAdmin = user?.role === 'admin';
   const notifications = useAppStore((state) => state.notifications);
+  const onModalOpen = useAppStore((state) => state.setModalOpen);
   const isLoading = useAppStore((state) => state.isLoadingNotification);
   const [activeTab, setActiveTab] = useState<Tab>('all');
   const [markingAll, setMarkingAll] = useState(false);
+  const [deletingAll, setDeletingAll] = useState(false);
+  const [deleteNotificationsModalOpen, setDeleteNotificationsModalOpen] = useState(false);
+
+  const [notificationModalOpen, setNotificationModalOpen] = useState(false);
+  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
@@ -40,6 +49,25 @@ const NotificationsPage = () => {
     await markAsRead(user.uid, notification.id);
   };
 
+  const handleOpenNotification = (notification: Notification) => {
+    if(!user) {
+      onModalOpen();
+      return;
+    } else {      
+      setSelectedNotification(notification);
+      setNotificationModalOpen(true);
+    } 
+  }
+
+  const handleDeleteAllNotifications = async () => {
+    if(!user) {
+      onModalOpen();
+      return;
+    } else {
+      setDeleteNotificationsModalOpen(true);
+    } 
+  }
+
   const handleMarkAllAsRead = async () => {
     if (!user || !unreadCount) return;
     setMarkingAll(true);
@@ -48,17 +76,6 @@ const NotificationsPage = () => {
     } finally {
       setMarkingAll(false);
     }
-  };
-
-  const handleViewVehicle = async (notification: Notification) => {
-    if (!user) return;
-
-    // Mark as read before navigating
-    if (!notification.isRead) {
-      await markAsRead(user.uid, notification.id);
-    }
-
-    router.push(`/vehicles/${notification.vehicleId}`);
   };
 
   // ── Not logged in ──────────────────────────────────────────
@@ -96,18 +113,30 @@ const NotificationsPage = () => {
             </p>
           )}
         </div>
-
-        {unreadCount > 0 && (
-          <Button
-            onClick={handleMarkAllAsRead}
-            disabled={markingAll}
-            variant="secondary"
-            className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm"
-          >
-            <CheckCheck size={16} />
-            {markingAll ? 'Marking...' : 'Mark all as read'}
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {unreadCount > 0 && (
+            <Button
+              onClick={handleMarkAllAsRead}
+              disabled={markingAll}
+              variant="secondary"
+              className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm"
+            >
+              <CheckCheck size={16} />
+              {markingAll ? 'Marking...' : 'Mark all as read'}
+            </Button>
+          )}
+          {unreadCount > 0 && (
+            <Button
+              onClick={handleDeleteAllNotifications}
+              disabled={markingAll}
+              variant="secondary"
+              className="flex items-center gap-2 bg-[#FF6B7A] hover:bg-[#ff5261] text-white text-sm"
+            >
+              <Trash2 size={16} />
+              {deletingAll ? 'Deleting...' : 'Delete all'}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Tabs */}
@@ -172,6 +201,7 @@ const NotificationsPage = () => {
                   ? 'bg-red-50/60 border-red-100'
                   : 'bg-white border-gray-100'
               }`}
+              style={!notification.isRead ? { backgroundColor: '#ffefef78', borderColor: '#f6a9a9' } : {backgroundColor: 'white'}}
             >
               {/* Unread dot */}
               {!notification.isRead && (
@@ -183,11 +213,15 @@ const NotificationsPage = () => {
                 <img
                   src={notification.imageUrl}
                   alt=""
-                  className="w-14 h-14 rounded-lg object-cover shrink-0"
+                  className="rounded-lg object-cover shrink-0 border border-gray-200"
+                  style={{width: 160, height: 85}}
                 />
               ) : (
-                <div className="w-14 h-14 rounded-lg bg-gray-100 shrink-0 flex items-center justify-center">
-                  <Bell size={18} className="text-gray-400" />
+                <div 
+                  className=" rounded-lg bg-red-600 flex items-center justify-center"
+                  style={{backgroundColor: 'lightgray', width: 160, height: 85}}
+                >
+                  <Bell size={25} className="text-gray-400" />
                 </div>
               )}
 
@@ -208,7 +242,8 @@ const NotificationsPage = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleViewVehicle(notification);
+                      handleMarkAsRead(notification);
+                      handleOpenNotification(notification);
                     }}
                     className="flex items-center gap-1 mt-2.5 text-xs font-medium text-[#FF6B7A] hover:underline"
                   >
@@ -221,6 +256,18 @@ const NotificationsPage = () => {
           ))}
         </div>
       )}
+      <NotificationModal
+        isModalOpen={notificationModalOpen}
+        onModalClose={() => setNotificationModalOpen(false)}
+        notificationData={selectedNotification}
+        router={router}
+        uid={user?.uid || ''}
+      />
+      <DeleteNotificationsModal
+        isModalOpen={deleteNotificationsModalOpen}
+        onModalClose={() => setDeleteNotificationsModalOpen(false)}
+        uid={user?.uid || ''}
+      />
     </div>
     </>
   );

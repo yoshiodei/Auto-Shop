@@ -76,19 +76,30 @@ export interface GlobalState {
   isWishlisted:    (vehicleId: string) => boolean;
   clearWishlist:   () => void;
 
-  notifications:  Notification[];
-  notificationUnreadCount:    number;
-  isLoadingNotification:      boolean;
-  subscribeToNotifications: (userId: string) => () => void; // returns unsubscribe fn
-  setNotifications:         (notifications: Notification[]) => void;
-  clearNotifications:       () => void;
+  // notifications:  Notification[];
+  // notificationUnreadCount:    number;
+  // isLoadingNotification:      boolean;
+  // subscribeToNotifications: (userId: string) => () => void; // returns unsubscribe fn
+  // setNotifications:         (notifications: Notification[]) => void;
+  // clearNotifications:       () => void;
+
+  // Notifications
+  notifications:           Notification[]
+  isLoadingNotification:   boolean
+  subscribeToNotifications:(userId: string) => () => void
+  clearNotifications:      () => void
+
+  // Chat unread
+  chatUnreadCount:         number
+  setChatUnreadCount:      (count: number) => void
+  clearChatUnread:         () => void
 
 
-  roomId:         string | null
-  unreadChatCount:    number
-  setRoomId:      (roomId: string | null) => void
-  setUnreadChatCount: (count: number) => void
-  clearChat:      () => void
+  // roomId:         string | null
+  // unreadChatCount:    number
+  // setRoomId:      (roomId: string | null) => void
+  // setUnreadChatCount: (count: number) => void
+  // clearChat:      () => void
 }
 
 const defaultFilter = {
@@ -220,41 +231,47 @@ addListing: (vehicle) => set({ vehicles: [vehicle, ...get().vehicles] }),
 
     clearWishlist: () => set({ wishlistedIds: [] }),
 
-  notifications: [],
-  notificationUnreadCount:   0,
-  isLoadingNotification: false,
+  notifications:         [],
+  isLoadingNotification: true,
 
-  // Real-time listener — call on login, unsubscribe on logout
   subscribeToNotifications: (userId) => {
-    const q = query(
-      collection(db, 'users', userId, 'notifications'),
-      orderBy('createdAt', 'desc')
-    );
+        const q = query(
+          collection(db, 'users', userId, 'notifications'),
+          orderBy('createdAt', 'desc')
+        )
 
-    const unsubscribe = onSnapshot(q, (snap) => {
-      const notifications = snap.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Notification[];
+        const unsubscribe = onSnapshot(q, (snap) => {
+          const notifications = snap.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          })) as Notification[]
 
-      set({
-        notifications,
-        notificationUnreadCount: notifications.filter((n) => !n.isRead).length,
-        isLoadingNotification:   false,
-      });
-    });
+          set({
+            notifications,
+            isLoadingNotification: false,
+          })
+        })
 
-    return unsubscribe; // call this to stop listening
-  },
+        return unsubscribe
+      },
 
-  setNotifications:   (notifications) => set({ notifications }),
-  clearNotifications: () => set({ notifications: [], notificationUnreadCount: 0 }),
+      clearNotifications: () => set({
+        notifications:         [],
+        isLoadingNotification: true,
+      }),
 
-  roomId:         null,
-  unreadChatCount:    0,
-  setRoomId:      (roomId)      => set({ roomId }),
-  setUnreadChatCount: (unreadChatCount) => set({ unreadChatCount }),
-  clearChat:      ()            => set({ roomId: null, unreadChatCount: 0 }),
+  // setNotifications:   (notifications) => set({ notifications }),
+  // clearNotifications: () => set({ notifications: [], notificationUnreadCount: 0 }),
+
+  // roomId:         null,
+  // unreadChatCount:    0,
+  // setRoomId:      (roomId)      => set({ roomId }),
+  // setUnreadChatCount: (unreadChatCount) => set({ unreadChatCount }),
+  // clearChat:      ()            => set({ roomId: null, unreadChatCount: 0 }),
+
+  chatUnreadCount:    0,
+  setChatUnreadCount: (count) => set({ chatUnreadCount: count }),
+  clearChatUnread:    ()      => set({ chatUnreadCount: 0 }),
 
 }),
 {
@@ -265,8 +282,8 @@ addListing: (vehicle) => set({ vehicles: [vehicle, ...get().vehicles] }),
     user: state.user,
     wishlistedIds: state.wishlistedIds,
     notifications: state.notifications,
-    unreadChatCount: state.unreadChatCount,
-    roomId: state.roomId,
+    // unreadChatCount: state.unreadChatCount,
+    // roomId: state.roomId,
   })
 }
 ));

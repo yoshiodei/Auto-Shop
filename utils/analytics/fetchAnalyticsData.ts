@@ -5,6 +5,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 
+
 export type AnalyticsSummary = {
   totalUsers:    number
   carsListed:    number
@@ -26,6 +27,34 @@ export type VehicleRow = {
   category:  string
   condition: string
   status:    string
+}
+
+export type SoldVehicleRow = {
+  id:        string
+  name:      string
+  price:     number
+  category:  string
+  condition: string
+  soldAt:    any
+}
+
+export type DeletedVehicleRow = {
+  id:          string
+  name:        string
+  price:       number
+  category:    string
+  condition:   string
+  deletedAt:   any
+}
+
+export type ReportRow = {
+  id:          string
+  vehicleId:   string
+  reportType:  string
+  description: string
+  reportedBy:  string
+  status:      string
+  createdAt:   any
 }
 
 // Summary cards
@@ -123,6 +152,61 @@ export const fetchVehiclesForTable = async (): Promise<VehicleRow[]> => {
       category:  d.category  ?? '',
       condition: d.condition ?? '',
       status:    d.status    ?? 'available',
+    }
+  })
+}
+
+
+// ===============================================================
+
+export const fetchSoldVehicles = async (): Promise<SoldVehicleRow[]> => {
+  const snap = await getDocs(
+    query(collection(db, 'soldVehicles'), orderBy('soldAt', 'desc'))
+  )
+  return snap.docs.map((doc) => {
+    const d = doc.data()
+    return {
+      id:        doc.id,
+      name:      `${d.year ?? ''} ${d.brand ?? ''} ${d.model ?? ''}`.trim() || d.title || 'Unknown',
+      price:     d.price     ?? 0,
+      category:  d.category  ?? '',
+      condition: d.condition ?? '',
+      soldAt:    d.soldAt    ?? null,
+    }
+  })
+}
+
+export const fetchDeletedVehicles = async (): Promise<DeletedVehicleRow[]> => {
+  const snap = await getDocs(
+    query(collection(db, 'deletedVehicles'), orderBy('deletedAt', 'desc'))
+  )
+  return snap.docs.map((doc) => {
+    const d = doc.data()
+    return {
+      id:        doc.id,
+      name:      `${d.year ?? ''} ${d.brand ?? ''} ${d.model ?? ''}`.trim() || d.title || 'Unknown',
+      price:     d.price     ?? 0,
+      category:  d.category  ?? '',
+      condition: d.condition ?? '',
+      deletedAt: d.deletedAt ?? null,
+    }
+  })
+}
+
+export const fetchReports = async (): Promise<ReportRow[]> => {
+  const snap = await getDocs(
+    query(collection(db, 'reports'), orderBy('createdAt', 'desc'))
+  )
+  return snap.docs.map((doc) => {
+    const d = doc.data()
+    return {
+      id:          doc.id,
+      vehicleId:   d.vehicleId   ?? '',
+      reportType:  d.reportType  ?? '',
+      description: d.description ?? '',
+      reportedBy:  d.reportedBy  ?? 'anonymous',
+      status:      d.status      ?? 'pending',
+      createdAt:   d.createdAt   ?? null,
     }
   })
 }

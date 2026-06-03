@@ -5,10 +5,13 @@ import './globals.css'
 import LoadingScreen from '@/components/initial-loading-screen'
 import { ToastContainer } from 'react-toastify'
 import { LoginModal } from '@/components/login-modal'
+import AppListeners from '@/components/AppListeners'
 // import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
+
+
 
 export const metadata: Metadata = {
   title: 'Auto World - Buy & Sell Cars',
@@ -50,6 +53,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="font-sans antialiased">
         <LoadingScreen />
+        <AppListeners />
         <ToastContainer />
         <LoginModal />
         {children}
