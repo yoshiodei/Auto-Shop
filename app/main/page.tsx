@@ -112,7 +112,7 @@ export default function MainPage() {
           {/* Mini Hero Section */}
           <div className="m-3 lg:m-6 p-8 rounded-2xl bg-gradient-to-r from-[#FF6B7A] to-[#FF8A96] flex items-center justify-center">
             <div className="text-center text-white">
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">Find Your Perfect Vehicle</h1>
+              <h1 className="text-2xl md:text-4xl font-bold mb-2">Find Your Perfect Vehicle</h1>
               <p className="text-lg lg:text-xl">Discover quality cars and bikes at amazing prices</p>
               {/* <button 
                 onClick={() => onModalOpen()} 
