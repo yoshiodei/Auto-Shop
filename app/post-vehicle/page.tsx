@@ -8,7 +8,7 @@ import { validateVehicleForm } from '@/utils/postValidation'
 import { createVehicle } from '@/utils/postVehicle'
 import { set } from 'date-fns'
 import { ca } from 'date-fns/locale'
-import { ArrowLeft, Car, Upload, X, Bike, Plus, Trash } from 'lucide-react'
+import { ArrowLeft, Car, Upload, X, Bike, Plus, Trash, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -715,7 +715,14 @@ const removeImage = (index: number) => {
                 type="submit"
                 className="px-6 py-2 bg-[#FF6B7A] hover:bg-[#FF5566] text-white rounded font-semibold transition-colors"
               >
-                {loading ? "Posting..." : `Post ${category === 'car' ? 'Car' : 'Bike'}`}
+                
+                {loading ? 
+                (<>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Posting...
+                  </>) : 
+                `Post ${category === 'car' ? 'Car' : 'Bike'}`
+                }
               </button>
             </div>
           </form>
