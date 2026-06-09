@@ -25,46 +25,46 @@ export function CarCard({ vehicleData }: { vehicleData: VehicleData}) {
     coverImage
   } = vehicleData
 
-  const arrangedImages = arrangeImageList(images, coverImage);
+  // const arrangedImages = arrangeImageList(images, coverImage);
   const user = useAppStore((state) => state.user);
   const isAdmin = user?.role === 'admin';
   const router = useRouter();
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
-  const imageList = arrangedImages
+  // const imageList = arrangedImages
 
-  const hasMultipleImages = imageList.length > 1
+  // const hasMultipleImages = imageList.length > 1
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
   const imageRef = useRef<HTMLDivElement>(null)
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX)
-  }
+  // const handleTouchStart = (e: React.TouchEvent) => {
+  //   setTouchStart(e.targetTouches[0].clientX)
+  // }
 
   const handleShowDetails = (id: string) => {
     router.push(`/vehicle/${id}`)
   }
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    setTouchEnd(e.changedTouches[0].clientX)
-    handleSwipe()
-  }
+  // const handleTouchEnd = (e: React.TouchEvent) => {
+  //   setTouchEnd(e.changedTouches[0].clientX)
+  //   handleSwipe()
+  // }
 
-  const handleSwipe = () => {
-    if (!hasMultipleImages) return
+  // const handleSwipe = () => {
+  //   if (!hasMultipleImages) return
     
-    const distance = touchStart - touchEnd
-    const isLeftSwipe = distance > 50
-    const isRightSwipe = distance < -50
+  //   const distance = touchStart - touchEnd
+  //   const isLeftSwipe = distance > 50
+  //   const isRightSwipe = distance < -50
 
-    if (isLeftSwipe) {
-      setCurrentImageIndex((prev) => (prev + 1) % imageList.length)
-    } else if (isRightSwipe) {
-      setCurrentImageIndex((prev) => (prev - 1 + imageList.length) % imageList.length)
-    }
-  }
+  //   if (isLeftSwipe) {
+  //     setCurrentImageIndex((prev) => (prev + 1) % imageList.length)
+  //   } else if (isRightSwipe) {
+  //     setCurrentImageIndex((prev) => (prev - 1 + imageList.length) % imageList.length)
+  //   }
+  // }
 
   return (
     <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
@@ -72,13 +72,15 @@ export function CarCard({ vehicleData }: { vehicleData: VehicleData}) {
       <div 
         ref={imageRef}
         className="relative h-48 bg-gray-200 overflow-hidden group cursor-grab active:cursor-grabbing"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        // onTouchStart={handleTouchStart}
+        // onTouchEnd={handleTouchEnd}
       >
         <div className="relative w-full h-full">
           <Image
-            key={currentImageIndex}
-            src={imageList[currentImageIndex]}
+            key={coverImage}
+            // key={currentImageIndex}
+            // src={imageList[currentImageIndex]}
+            src={coverImage || '/placeholder.png'}
             alt={title}
             fill
             className="object-cover group-hover:scale-105 transition-all duration-500 select-none animate-in fade-in"
@@ -86,7 +88,7 @@ export function CarCard({ vehicleData }: { vehicleData: VehicleData}) {
         </div>
         
         {/* Circle Indicators */}
-        {hasMultipleImages && (
+        {/* {hasMultipleImages && (
           <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-1.5 z-10">
             {imageList.map((_, index) => (
               <button
@@ -101,7 +103,7 @@ export function CarCard({ vehicleData }: { vehicleData: VehicleData}) {
               />
             ))}
           </div>
-        )}
+        )} */}
         
         {/* Date Badge */}
         <div className="absolute top-3 left-3 bg-white bg-white/70 px-3 py-1 rounded text-xs text-gray-600 font-medium">
@@ -129,7 +131,7 @@ export function CarCard({ vehicleData }: { vehicleData: VehicleData}) {
 
           <div className="flex flex-row lg:flex-col">
             <p className="text-gray-500">Location</p>
-            <p className="font-semibold flex-1 text-gray-900 ml-1 lg:ml-0 truncate">{`${location.region}, ${location.town}`}</p>
+            <p className="font-semibold flex-1 text-gray-900 ml-1 lg:ml-0 truncate">{`${location.region}, ${location.town == "other" ? location.otherTown : location.town}`}</p>
           </div>
         </div>
 

@@ -32,6 +32,7 @@ export interface VehicleData {
     createdAt: any
     views?: string[]
     viewCount?: number
+    isNegotiable: boolean
   }
 
 export interface UserData {

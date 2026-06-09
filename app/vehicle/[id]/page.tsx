@@ -271,14 +271,17 @@ export default function VehicleDetailPage() {
               <div className="bg-white rounded-lg p-6 space-y-6">
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900 min-[800px]:hidden mb-4 capitalize">{vehicle?.title}</h1>
-                  <div className="flex items-center justify-between gap-4">
+                  <div className="flex flex-col flex-start sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-2 text-gray-600">
                       <MapPin className="w-5 h-5" />
-                      {vehicle?.location.town}, {vehicle?.location.town === 'other' ? vehicle.location.otherTown : vehicle?.location.region}
+                      {vehicle?.location.town === 'other' ? vehicle.location.otherTown : vehicle?.location.town}, {vehicle?.location.region} 
                     </div>
-                    <div className="flex items-center gap-2 text-gray-600 bg-gray-50 px-3 py-1 rounded-full">
-                      <Eye className="w-5 h-5 text-[#FF6B7A]" />
-                      <span className="text-sm font-semibold">{viewers?.length === 1 ? '1 view' : `${viewers?.length} views`}</span>
+                    <div 
+                      className="flex items-center">
+                      <div className="flex gap-2 text-gray-600 bg-gray-50 px-3 py-1 rounded-full">
+                        <Eye className="w-5 h-5 text-[#FF6B7A]" />
+                        <span className="text-sm font-semibold">{viewers?.length === 1 ? '1 view' : `${viewers?.length} views`}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -391,7 +394,7 @@ export default function VehicleDetailPage() {
                 {vehicle?.features && vehicle?.features?.length > 0 && (
                   <div>
                     <h2 className="text-xl font-bold text-gray-900 mb-4">Features</h2>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {vehicle?.features?.map(feature => (
                         <div key={feature} className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-[#FF6B7A] rounded-full"></div>
