@@ -388,12 +388,20 @@ const removeImage = (index: number) => {
                     <option value="">Select body type</option>
                     <option value="sedan">Sedan</option>
                     <option value="suv">SUV</option>
+                    <option value="crossover">Crossover</option>
                     <option value="hatchback">Hatchback</option>
                     <option value="coupe">Coupe</option>
+                    <option value="coupe-suv">Coupe SUV</option>
                     <option value="convertible">Convertible</option>
                     <option value="wagon">Wagon</option>
                     <option value="van">Van</option>
+                    <option value="mini-van">Mini Van</option>
+                    <option value="sport">Sport</option>
+                    <option value="limousine">Limousine</option>
                     <option value="pickup">Pickup</option>
+                    <option value="micro">Micro</option>
+                    <option value="off-road">Off-Road</option>
+                    <option value="muscle">Muscle</option>
                   </select>
                 </div>)}
                 {category === 'car' && (
