@@ -289,7 +289,7 @@ export default function VehicleDetailPage() {
                 {vehicle?.category === 'car' && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-gray-500 text-sm">Mileage</p>
+                      <p className="text-gray-500 text-sm">Mileage (km)</p>
                       <p className="text-lg font-bold text-gray-900">{vehicle?.mileage || 'N/A'}</p>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg">

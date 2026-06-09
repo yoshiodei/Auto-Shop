@@ -21,7 +21,8 @@ export default function PostVehiclePage() {
     "Tema",
     "Lapaz",
     "Madina",
-    "Kasoa"
+    "Kasoa",
+    "Achimota Overhead",
   ],
   "Ashanti": [
     "Kumasi",
